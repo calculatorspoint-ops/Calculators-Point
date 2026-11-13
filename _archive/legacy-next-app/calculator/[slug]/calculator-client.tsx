@@ -1,0 +1,305 @@
+/**
+ * app/calculator/[slug]/calculator-client.tsx
+ *
+ * Client component that renders the existing Calculator.tsx page logic.
+ * We keep the calculator engine client-side (as designed by the migration plan).
+ *
+ * DOM ORDER FIX: CalculatorWidget is imported STATICALLY (not lazy) so it renders
+ * in the client component's first paint. Individual calculator forms (BMICalculator,
+ * etc.) remain lazy-loaded inside CalculatorWidget via their own lazy() calls in
+ * the registry files (healthForms.ts, financeForms.ts, etc.).
+ *
+ * WHY: A lazy() wrapper here created a double-lazy chain:
+ *   lazy(CalculatorWidget) → lazy(BMICalculator)
+ * This meant <input> elements only appeared after TWO async chunk loads, landing
+ * them after the server-rendered <SEOContentSection> in the DOM — the reported
+ * "inputs after footer" bug. With CalculatorWidget static, the widget shell
+ * (including its StaticFormPlaceholder + correct DOM position) is present on first paint.
+ *
+ * SSR SEO FIX: The Suspense fallback inside CalculatorWidget is now StaticFormPlaceholder,
+ * which renders the calculator name + description as real semantic HTML. Google crawls
+ * this instead of empty shimmer divs. The interactive form lazy-hydrates on top.
+ */
+'use client';
+
+import { Suspense, lazy, useEffect, useState } from 'react';
+// IMPORTANT: Do NOT statically import firebase here.
+// The Firebase SDK is ~200KB and would block the main thread on every calculator page.
+// It's dynamically imported inside useEffect after the page is interactive.
+import { useAppStore } from '@/store/useAppStore';
+import { getCalcBySlug, getRelatedCalcs, CATEGORIES } from '@/data/calculatorConfigs';
+import { BASE_FAQS, CALC_FAQS } from '@/data/faqData';
+import { getLandingsByCalc } from '@/data/seoLandingData';
+import { Share2, Bookmark, BookmarkCheck } from 'lucide-react';
+import Link from '@/compat/link';
+import { FAQSection } from '@/components/calculator-core/FAQSection';
+import { FeedbackWidget } from '@/components/calculator-core/FeedbackWidget';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { SocialShare } from '@/components/ui/SocialShare';
+// STATIC import — fixes the double-lazy DOM order bug (see file comment above).
+// CalculatorWidget is only 92 lines; its per-form children remain lazy via registry files.
+import { CalculatorWidget } from '@/components/calculator-core/CalculatorWidget';
+
+const CurrencyBanner = lazy(() => import('@/components/ui/CurrencyBanner'));
+const ExportToolbar = lazy(() =>
+  import('@/core/export-engine/ExportToolbar').then(m => ({ default: m.ExportToolbar }))
+);
+
+
+export function CalculatorPageClient({ slug, headerAlreadyRendered = false }: { slug: string; headerAlreadyRendered?: boolean }) {
+  const calc = getCalcBySlug(slug);
+
+  // ⚠️ Rules of Hooks: ALL hooks must be called unconditionally before any early return.
+  // The useEffect bodies use calc?.id / calc?.slug (optional chaining) so they are
+  // safe to run even when calc is undefined — they simply no-op.
+  const { toggleFavorite, favorites, addRecent } = useAppStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    if (calc?.id) addRecent(calc.id);
+    // Track calculator view in Firestore — dynamically imported so Firebase SDK
+    // doesn't block the initial render / main thread parse.
+    if (calc?.slug) {
+      import('@/lib/firebase/firestore')
+        .then(({ incrementCalcViews }) => incrementCalcViews(calc.slug))
+        .catch(() => {}); // silently fail — never block UI for a stat counter
+    }
+  }, [calc?.id, calc?.slug, addRecent]);
+
+  // Early return AFTER all hooks — never before.
+  if (!calc) return null;
+
+  // Use false on server/pre-mount so SSR and client initial render match
+  const isFav = mounted && favorites.includes(calc.id);
+  const cat     = CATEGORIES.find(c => c.id === calc.cat);
+  const faqs    = [...((CALC_FAQS as Record<string, { q: string; a: string }[]>)[slug] ?? []), ...BASE_FAQS];
+  // Issue 7: get /tools/ deep-dive landing pages linked to this calculator
+  const toolGuides = getLandingsByCalc(calc.slug);
+
+  const share = () => {
+    // F2 fix: Share the full URL — calculator forms push their field values as
+    // search params via useShareableUrl, so this URL is pre-filled for the recipient.
+    const shareTarget = typeof window !== 'undefined' ? window.location.href : `/calculator/${slug}`;
+    if (navigator.share) {
+      navigator.share({ title: calc.name, text: `Free ${calc.name} — ${calc.desc}`, url: shareTarget }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(shareTarget)
+        .then(() => {
+          // Brief toast — no state needed, just a quick DOM manipulation
+          const btn = document.querySelector('[aria-label="Share calculator"]') as HTMLButtonElement | null;
+          if (btn) {
+            const orig = btn.innerHTML;
+            btn.innerHTML = '✓ Copied!';
+            btn.style.background = 'rgba(16,185,129,.8)';
+            setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; }, 2000);
+          }
+        })
+        .catch(() => {});
+    }
+  };
+
+  const calculatorName = calc.name.trim();
+  // W5 fix: append 'Online' to H1 — searchers phrase queries as "EMI Calculator Online",
+  // "BMI Calculator Online" etc. This directly aligns our H1 with primary search intent.
+  const pageH1 = /calculator/i.test(calculatorName)
+    ? `Free ${calculatorName} Online`
+    : `Free ${calculatorName} Calculator Online`;
+
+  return (
+    <>
+      {/*
+        Page Header — only rendered here if the server did NOT pre-render it.
+        When headerAlreadyRendered=true (set by page.tsx), the server component
+        CalcPageHeader already emitted the breadcrumb + H1 + badges as static HTML.
+        We only render the interactive action buttons (favorite, share) to avoid
+        duplicating the header content.
+      */}
+      {headerAlreadyRendered ? (
+        // Action buttons as a fixed overlay — does NOT create a block-level layout
+        // element, so it never intercepts clicks on sidebar links below.
+        <div
+          style={{
+            position: 'fixed',
+            top: 'calc(var(--nav-h, 56px) + 8px)',
+            right: '20px',
+            display: 'flex',
+            gap: 8,
+            zIndex: 150,
+          }}
+        >
+          <button
+            onClick={() => toggleFavorite(calc.id)}
+            className="nav-icon-btn"
+            aria-label={isFav ? 'Remove from favorites' : 'Save to favorites'}
+            style={{ background: 'rgba(15,27,61,.7)', borderColor: 'rgba(255,255,255,.2)', color: '#fff', backdropFilter: 'blur(8px)' }}
+          >
+            {isFav ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
+          </button>
+          <button
+            onClick={share}
+            className="nav-icon-btn"
+            aria-label="Share calculator"
+            style={{ background: 'rgba(15,27,61,.7)', borderColor: 'rgba(255,255,255,.2)', color: '#fff', backdropFilter: 'blur(8px)' }}
+          >
+            <Share2 size={16} />
+          </button>
+        </div>
+      ) : (
+        // Full header — rendered when no server pre-render (e.g., direct CSR navigation)
+        <div className="calc-page-head">
+          <div className="cph-inner">
+            <nav className="cph-breadcrumb" aria-label="Breadcrumb">
+              <Link href="/">Home</Link>
+              <span className="cph-breadcrumb-sep">›</span>
+              {cat && <Link href={`/category/${cat.id}`}>{cat.icon} {cat.name}</Link>}
+              <span className="cph-breadcrumb-sep">›</span>
+              <span style={{ color: 'rgba(255,255,255,.72)' }}>{calc.name}</span>
+            </nav>
+
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+              {/* Left side: Icon + Texts */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, flex: '1 1 300px', minWidth: 0 }}>
+                <div style={{ fontSize: 34, lineHeight: 1, flexShrink: 0 }}>{calc.icon}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h1 className="cph-title">{pageH1}</h1>
+                  {calc.desc && (
+                    <p style={{ fontSize: 14, color: 'rgba(255,255,255,.55)', lineHeight: 1.6, marginBottom: 12 }}>
+                      {calc.desc}
+                    </p>
+                  )}
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    {calc.popular && <span className="badge badge-amber">🔥 Popular</span>}
+                    {calc.isNew && <span className="badge badge-green">✨ New</span>}
+                    {calc.hasChart && <span className="badge badge-blue">📊 Chart</span>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                <button
+                  onClick={() => toggleFavorite(calc.id)}
+                  className="nav-icon-btn"
+                  aria-label={isFav ? 'Remove from favorites' : 'Save to favorites'}
+                  style={{ background: 'rgba(255,255,255,.08)', borderColor: 'rgba(255,255,255,.15)', color: '#fff' }}
+                >
+                  {isFav ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
+                </button>
+                <button
+                  onClick={share}
+                  className="nav-icon-btn"
+                  aria-label="Share calculator"
+                  style={{ background: 'rgba(255,255,255,.08)', borderColor: 'rgba(255,255,255,.15)', color: '#fff' }}
+                >
+                  <Share2 size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Main layout ── */}
+      <div className="calc-layout">
+        {/* Left column: calculator — primary content, labeled for screen readers & crawlers */}
+        <div role="region" aria-label="Calculator tool" style={{ minWidth: 0 }}>
+          {/* Currency banner for finance calculators */}
+          {calc.cat === 'finance' && (
+            <Suspense fallback={null}>
+              <CurrencyBanner />
+            </Suspense>
+          )}
+
+          {/* Intro paragraph — unique 2–3 sentence context shown above the calculator */}
+          {calc.intro && (
+            <p className="calc-intro-para">{calc.intro}</p>
+          )}
+
+          {/* Calculator form — min-height reserves space to prevent CLS while skeleton is shown */}
+          {/* Suspense here catches the lazy-loaded individual calculator form (e.g. BMICalculator).
+              CalculatorWidget itself is now static so the shell + FormFallback placeholder
+              render synchronously — inputs are correctly in the DOM before SEO content. */}
+          <div id="calc-export-target" className="calc-card" style={{ marginBottom: 16, minHeight: 360 }}>
+            <ErrorBoundary>
+              <CalculatorWidget calc={calc} />
+            </ErrorBoundary>
+          </div>
+
+          {/* Export toolbar */}
+          <Suspense fallback={null}>
+            <ExportToolbar filenamePrefix={calc.name} />
+          </Suspense>
+
+          {/* Feedback */}
+          <FeedbackWidget calcName={calc.name} calcSlug={calc.slug} />
+
+          {/* Social share — #28 fix: share results to WhatsApp, Twitter/X, or copy URL */}
+          <div style={{ marginTop: 16, padding: '14px 18px', background: 'var(--surface)', border: '1.5px solid var(--border)', borderRadius: 14 }}>
+            <SocialShare
+              title={`${calc.name} Result`}
+              text={`I used the free ${calc.name} on Calculators Point — check it out!`}
+            />
+          </div>
+
+          {/* FAQ */}
+          {faqs.length > 0 && <FAQSection faqs={faqs} />}
+        </div>
+
+        {/* Right sidebar — related tools, hidden on mobile */}
+        <aside aria-label="Related calculators" style={{ minWidth: 0 }}>
+          {/* In-Depth Guides — contextual internal links to /tools/ landing pages.
+              These pass PageRank from the high-traffic calculator page to the long-tail /tools/ pages. */}
+          {toolGuides.length > 0 && (
+            <div className="side-card">
+              <div className="sec-head" style={{ background: 'var(--surf2)' }}>
+                <span>📖</span>
+                <span>In-Depth Guides</span>
+              </div>
+              {toolGuides.map(guide => (
+                <Link
+                  key={guide.slug}
+                  href={`/tools/${guide.slug}`}
+                  className="calc-row"
+                >
+                  <span className="calc-row-icon">📌</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {guide.h1}
+                  </span>
+                  <span className="calc-row-arrow">›</span>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {/* Related calculators — curated via calc.relatedCalculators (cross-category) */}
+          {(() => {
+            const sidebarRelated = getRelatedCalcs(calc, 7);
+            return sidebarRelated.length > 0 ? (
+              <div className="side-card" style={{ marginTop: toolGuides.length > 0 ? 16 : 0 }}>
+                <div className="sec-head" style={{ background: 'var(--surf2)' }}>
+                  <span>🔗</span>
+                  <span>Related Tools</span>
+                </div>
+                {sidebarRelated.map(c => (
+                  <Link
+                    key={c.id}
+                    href={`/calculator/${c.slug}`}
+                    className="calc-row"
+                  >
+                    <span className="calc-row-icon">{c.icon}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {c.name}
+                    </span>
+                    <span className="calc-row-arrow">›</span>
+                  </Link>
+                ))}
+              </div>
+            ) : null;
+          })()}
+        </aside>
+      </div>
+    </>
+  );
+}

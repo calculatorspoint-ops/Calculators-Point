@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- ═══════════════════════════════════════════════
+         RESOURCE HINTS — load critical assets early
+    ════════════════════════════════════════════════ -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- ═══════════════════════════════════════════════
+         FAVICON & THEME
+    ════════════════════════════════════════════════ -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Calculators Point" />
+
+    <!-- ═══════════════════════════════════════════════
+         PRIMARY SEO
+    ════════════════════════════════════════════════ -->
+    <title>Calculators Point — 200+ Free Online Calculators</title>
+    <meta name="description" content="Calculators Point offers 200+ free, instant calculators for finance, health, math, and everyday use. Fast, accurate, and beautifully designed tools — no signup required." />
+    <meta name="keywords" content="calculator, EMI calculator, BMI calculator, SIP calculator, compound interest, GST calculator, tax calculator, salary calculator, GPA calculator" />
+    <meta name="author" content="Calculators Point" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://calculatorspoint.com/" />
+
+    <!-- ═══════════════════════════════════════════════
+         OPEN GRAPH
+    ════════════════════════════════════════════════ -->
+    <meta property="og:title" content="Calculators Point — 200+ Free Online Calculators" />
+    <meta property="og:description" content="Professional-grade calculators for finance, health, math, and everyday use. Fast, free, and beautifully designed." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://calculatorspoint.com/" />
+    <meta property="og:site_name" content="Calculators Point" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- ═══════════════════════════════════════════════
+         TWITTER CARD
+    ════════════════════════════════════════════════ -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Calculators Point — 200+ Free Online Calculators" />
+    <meta name="twitter:description" content="Professional-grade calculators for finance, health, math, and everyday use." />
+
+    <!-- ═══════════════════════════════════════════════
+         CRITICAL INLINE CSS — prevents FOUC + fixes CLS
+         IMPORTANT: Reserves explicit height for above-fold
+         sections to prevent 0.400 layout shift score.
+    ════════════════════════════════════════════════ -->
+    <style>
+      /* System font stack — matches --font token exactly */
+      :root {
+        --font:      'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+        --nav-h: 62px;
+      }
+      html, body { background: #020617; color: #f8fafc; margin: 0; overflow-x: hidden; font-family: var(--font); }
+
+      /* ── CLS FIX: Reserve navbar height so no jump on mount ── */
+      .navbar { height: var(--nav-h); min-height: var(--nav-h); }
+
+      /* ── CLS FIX: Reserve hero height ── */
+      .hero { min-height: 380px; }
+      @media(max-width:767px){ .hero { min-height: 300px; } }
+
+      /* ── CLS FIX: Reserve stat strip height ── */
+      .stat-strip { min-height: 78px; }
+
+      /* ── FORCED REFLOW FIX: CSS class instead of body.style.overflow ── */
+      html.mob-menu-open body { overflow: hidden; }
+
+      /* ── content-visibility: auto on below-fold sections ── */
+      .home-why,
+      .footer { content-visibility: auto; contain-intrinsic-size: 0 400px; }
+
+      /* Spinner shown while React hydrates */
+      #root:empty::after {
+        content: '';
+        display: block;
+        width: 32px; height: 32px;
+        margin: 40vh auto 0;
+        border: 3px solid rgba(255,255,255,.1);
+        border-top-color: #6366f1;
+        border-radius: 50%;
+        animation: _spin .7s linear infinite;
+      }
+      @keyframes _spin { to { transform: rotate(360deg); } }
+
+      /* ── LCP FIX: Static above-fold hero shell ──────────────
+         Renders BEFORE React JS loads → fixes 2,550ms LCP delay.
+         React replaces this on mount (no visual flash because
+         styles match the React-rendered output exactly).
+      ──────────────────────────────────────────────────────── */
+      #hero-shell {
+        background: linear-gradient(135deg, #0f172a 0%, #1a1040 50%, #0f172a 100%);
+        padding: clamp(28px,6vw,72px) clamp(14px,4vw,24px);
+        min-height: 380px;
+        display: flex;
+        align-items: center;
+      }
+      #hero-shell-inner { max-width: 580px; margin: 0 auto; }
+      #hero-shell-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 5px 14px; border-radius: 100px; margin-bottom: 20px;
+        background: rgba(99,102,241,.15); border: 1px solid rgba(99,102,241,.3);
+        color: rgba(255,255,255,.75); font-size: 12px; font-weight: 600;
+      }
+      #hero-shell h1 {
+        font-size: clamp(1.7rem,7vw,3rem); font-weight: 900;
+        letter-spacing: -.04em; line-height: 1.15; color: #fff;
+        margin: 0 0 16px;
+      }
+      #hero-shell-accent {
+        background: linear-gradient(135deg,#60a5fa,#a78bfa,#34d399);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      #hero-shell p {
+        font-size: clamp(13px,3.5vw,16px); color: rgba(255,255,255,.6);
+        line-height: 1.65; margin: 0 0 24px; max-width: 520px;
+      }
+      #hero-shell-btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 12px 24px; border-radius: 12px; font-size: 15px;
+        font-weight: 700; color: #fff; text-decoration: none;
+        background: linear-gradient(135deg,#6366f1,#4f46e5);
+        box-shadow: 0 4px 20px rgba(99,102,241,.4);
+      }
+      /* Hide shell once React mounts */
+      #root:not(:empty) ~ #hero-shell,
+      #root:not(:empty) + * #hero-shell { display: none; }
+    </style>
+
+
+    <!-- ═══════════════════════════════════════════════
+         FONTS — Non-blocking load strategy
+         FIX: Was render-blocking. Now uses preload +
+         media="print" trick to load asynchronously.
+         Plus Jakarta Sans added (used by --font-hd token).
+    ════════════════════════════════════════════════ -->
+    <!-- Step 1: preload the font CSS so browser fetches it early -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800;900&family=JetBrains+Mono:wght@400;600&display=swap"
+    />
+    <!-- Step 2: load non-blocking via media=print trick -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800;900&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <!-- Fallback for no-JS -->
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    </noscript>
+
+    <!-- ═══════════════════════════════════════════════
+         JSON-LD STRUCTURED DATA
+    ════════════════════════════════════════════════ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Calculators Point",
+      "url": "https://calculatorspoint.com/",
+      "description": "200+ free professional-grade calculators for finance, health, math, and everyday use.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://calculatorspoint.com/calculators?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script>
+      (function() {
+        try {
+          var store = localStorage.getItem('CalculatorsPoint-v3');
+          if (store) {
+            var state = JSON.parse(store).state;
+            if (state && state.theme === 'dark') {
+              document.documentElement.classList.add('dark');
+            }
+          } else {
+            // Default to dark mode or system preference if preferred
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+              document.documentElement.classList.add('dark');
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <!-- ── STATIC HERO SHELL: Renders immediately before React JS loads.
+         This is what Lighthouse measures as the LCP element.
+         React replaces #root content on mount; hero-shell hidden via CSS. ──────── -->
+    <div id="hero-shell" aria-hidden="true">
+      <div id="hero-shell-inner">
+        <div id="hero-shell-badge">✦ 200+ Free Tools · No Signup · Instant Results</div>
+        <h1>Your All-in-One<br><span id="hero-shell-accent">Calculator Suite</span></h1>
+        <p class="hero-sub">Finance, health, math and everyday tools — with live charts, step-by-step breakdowns, and smart insights. 100% free, works offline, completely private.</p>
+        <a href="/calculators" id="hero-shell-btn">Explore All Tools →</a>
+      </div>
+    </div>
+
+    <!-- Root mount point -->
+    <div id="root"></div>
+    <!-- Module script — Vite injects the correct hashed bundle path at build time -->
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Hide static shell once React mounts -->
+    <script>
+      (function(){
+        var root = document.getElementById('root');
+        var shell = document.getElementById('hero-shell');
+        if(!root || !shell) return;
+        var obs = new MutationObserver(function(){
+          if(root.children.length > 0){ shell.style.display='none'; obs.disconnect(); }
+        });
+        obs.observe(root, { childList: true });
+      })();
+    </script>
+  </body>
+</html>

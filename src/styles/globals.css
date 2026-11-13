@@ -1,0 +1,224 @@
+/**
+ * app/globals.css
+ * Next.js App Router global CSS entry point.
+ *
+ * CRITICAL CSS STRATEGY:
+ * This file is the FIRST CSS Next.js processes. By inlining critical
+ * above-fold styles here, the browser can paint the navbar and hero
+ * immediately — before the full index.css (35KB) finishes loading.
+ * This eliminates the render-blocking penalty for LCP and FCP.
+ *
+ * Rules here: only styles for elements visible in the first viewport.
+ * Everything else lives in src/styles/index.css.
+ */
+
+/* ── Critical: Prevent invisible text while fonts load ── */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+img, video { max-width: 100%; height: auto; display: block; }
+
+/* ── Skip-to-content link (WCAG 2.1 AA) ── */
+/* Pure CSS — no JS event handlers, safe in Server Components.
+   Hidden off-screen until Tab key brings it into focus. */
+.skip-link {
+  position: fixed;
+  top: -9999px;
+  left: 16px;
+  z-index: 10000;
+  background: #216459;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 0 0 10px 10px;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  transition: top 0.15s ease;
+  white-space: nowrap;
+}
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  /* Prevent CLS from scrollbar appearing */
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
+/* ── Critical: Navbar placeholder so page doesn't jump on load ── */
+/* Must match --nav-h CSS variable (68px desktop / 56px mobile) defined in index.css */
+.navbar {
+  min-height: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  /* Background and other decorative styles are in index.css */
+  background: var(--surface, #ffffff);
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+
+/* ── Critical: Stat-strip dimensions reserved above-fold ── */
+/* Prevents the most impactful CLS items (0.057 × 3 = 0.171) */
+.stat-strip {
+  min-height: 78px;
+  height: 78px;
+  display: flex;
+  contain: layout;
+  overflow: hidden;
+}
+.stat-strip-item {
+  flex: 1;
+  height: 78px;
+  min-height: 78px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* ── Critical: Hero section (contains LCP element) ── */
+/* Minimum styles so the server-rendered hero paints immediately.
+   Full decorative styles (gradients, shadows) load from index.css. */
+.hero {
+  min-height: 380px;
+  padding: clamp(40px, 6vw, 80px) clamp(16px, 4vw, 24px);
+  background: linear-gradient(135deg, #123C37 0%, #256F62 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media(max-width:767px) { .hero { min-height: 300px; } }
+.hero-inner { max-width: 1280px; width: 100%; margin: 0 auto; }
+.hero-layout { display: flex; align-items: center; gap: 48px; }
+@media(max-width:767px) { .hero-layout { flex-direction: column; } }
+.hero-content { flex: 1; }
+.hero-title {
+  font-family: var(--font-jakarta, var(--font-inter, system-ui));
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 16px;
+}
+/* LCP ELEMENT — this must render without blocking CSS */
+.hero-sub {
+  font-size: 16px;
+  /* High contrast body text on the deep slate-blue hero. */
+  color: rgba(255,255,255,.82);
+  line-height: 1.7;
+  margin-bottom: 28px;
+  max-width: 540px;
+}
+
+/* ── Accessibility: Screen-reader-only utility ── */
+/* Visually hidden but readable by screen readers. */
+/* Used in skeleton loaders to announce loading state. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── CLS guard: calculator card minimum height ── */
+/* Prevents the card from collapsing between skeleton → real form swap. */
+.calc-card-min-h {
+  min-height: 360px;
+}
+
+/* ── Critical: Skeleton loader animation ── */
+/* Defined here (critical CSS) so skeleton shimmer animates immediately,
+   before secondary CSS chunks (index.css) are parsed.
+   DO NOT remove — this is the single source of truth for shimmer.
+   The .skeleton class in index.css references the same rule; having it
+   here means it's available from the very first paint on slow connections. */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--border, #e2e8f0) 25%,
+    var(--surf2, #f8fafc)  50%,
+    var(--border, #e2e8f0) 75%
+  );
+  background-size: 1200px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+/* ── Static QuickCalc Placeholder (hero) ───────────────────────────────────
+   Visually mirrors the real QuickCalc widget with zero JS.
+   Replaced by the real interactive widget after hydration. */
+.hero-calc-placeholder {
+  width: min(300px, 100%);
+  background: rgba(15,23,42,.94);
+  border: 1.5px solid rgba(255,255,255,.12);
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.4);
+}
+.hero-calc-display {
+  background: rgba(255,255,255,.06);
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-align: right;
+  min-height: 56px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+.hero-calc-display-hint {
+  font-size: 28px;
+  font-weight: 300;
+  color: rgba(255,255,255,.9);
+  font-variant-numeric: tabular-nums;
+}
+.hero-calc-btns {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.hero-calc-btn {
+  background: rgba(255,255,255,.08);
+  border-radius: 10px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255,255,255,.9);
+  cursor: default;
+  user-select: none;
+  transition: background .12s;
+}
+.hero-calc-btn--op {
+  color: #7da3b5;
+  background: rgba(96,165,250,.12);
+}
+.hero-calc-btn--eq {
+  background: linear-gradient(135deg, #3C8275, #216459);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(23,56,72,.35);
+}
+.hero-calc-btn--zero {
+  grid-column: span 2;
+}
