@@ -15,13 +15,14 @@ const vite = await createServer({
 });
 
 try {
-  const [{ INDEXABLE_CALCULATORS, ALL_CALCULATORS, CATEGORIES, LIVE_CALC_COUNT, getRelatedCalcs }, { SEO_LANDING_PAGES }, { getPublishedPosts }, { getPtBrCalcAsync }, { UI_PT_BR }, { STATIC_PAGES_PT_BR }] = await Promise.all([
+  const [{ INDEXABLE_CALCULATORS, ALL_CALCULATORS, CATEGORIES, LIVE_CALC_COUNT, getRelatedCalcs }, { SEO_LANDING_PAGES }, { getPublishedPosts }, { getPtBrCalcAsync }, { UI_PT_BR }, { STATIC_PAGES_PT_BR }, { toolsConfig }] = await Promise.all([
     vite.ssrLoadModule('/src/data/calculatorConfigs.ts'),
     vite.ssrLoadModule('/src/data/seoLandingData.ts'),
     vite.ssrLoadModule('/src/data/blogPosts.ts'),
     vite.ssrLoadModule('/src/data/pt-br/index.ts'),
     vite.ssrLoadModule('/src/data/pt-br/ui.ts'),
     vite.ssrLoadModule('/src/data/pt-br/static-pages.ts'),
+    vite.ssrLoadModule('/src/data/name-generators/tools-config.ts'),
   ]);
   const base = process.env.SITE_URL || 'https://calculatorspoint.com';
   const urls = new Set([
@@ -87,6 +88,7 @@ try {
     'app-name-generator': 'App Name Generator', 'youtube-channel-name-generator': 'YouTube Channel Name Generator',
     'instagram-username-generator': 'Instagram Username Generator', 'islamic-baby-names': 'Islamic Baby Names',
   };
+  const generatorsBySlug = Object.fromEntries(toolsConfig.map((tool) => [tool.slug, tool]));
   const blogPosts = getPublishedPosts?.() || [];
   const routeTitle = (route) => {
     const cleanRoute = route.replace(/^\/pt-br(?=\/|$)/, '') || '/';
@@ -112,6 +114,8 @@ try {
     }
     const generatorMatch = cleanRoute.match(/^\/name-generators\/([^/]+)$/);
     if (generatorMatch && generatorNames[generatorMatch[1]]) {
+      const generator = generatorsBySlug[generatorMatch[1]];
+      if (generator) return [generator.metaTitle, generator.metaDescription];
       const name = generatorNames[generatorMatch[1]];
       return [`${name} — Free Online Tool`, `Use our free ${name.toLowerCase()} to explore options and generate ideas instantly.`];
     }

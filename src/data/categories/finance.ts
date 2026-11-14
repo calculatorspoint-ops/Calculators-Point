@@ -319,6 +319,8 @@ export const financeCalculators: CalculatorConfig[] = [
   slug: '401k-calculator',
   cat: 'finance',
   name: '401(k) Calculator',
+  metaTitle: '401(k) Calculator: Project Retirement Savings & Monthly Income',
+  metaDescription: 'Estimate your 401(k) balance over time with contributions, employer match, investment growth, and projected monthly retirement withdrawals.',
   icon: '🏖️',
   desc: '401k growth with employer match, tax-deferred compounding & withdrawal projections',
   popular: true,
