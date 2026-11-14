@@ -11,6 +11,7 @@ import { SEOContentBlock } from './SEOContentBlock';
 import { RelatedTools } from './RelatedTools';
 import type { GeneratorTool } from '@/data/name-generators/tools-config';
 import type { FAQItem } from '@/data/name-generators/faq-data';
+import { SITE_URL } from '@/config/site';
 
 interface GeneratorLayoutProps {
   tool: GeneratorTool;
@@ -69,7 +70,7 @@ export function GeneratorLayout({
     '@type': 'WebApplication',
     name: tool.title,
     description: tool.metaDescription,
-    url: `https://www.calculatorspoint.com/name-generators/${tool.slug}`,
+    url: `${SITE_URL}/name-generators/${tool.slug}`,
     applicationCategory: 'UtilitiesApplication',
     operatingSystem: 'Any',
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

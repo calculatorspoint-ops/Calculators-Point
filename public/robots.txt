@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://www.calculatorspoint.com/sitemap.xml
+Sitemap: https://calculatorspoint.com/sitemap.xml

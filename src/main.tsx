@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import { Helmet } from 'react-helmet-async';
 import { ClientProviders } from './app-shell';
+import { SITE_URL } from './config/site';
 import './styles/globals.css';
 import './styles/index.css';
 import './styles/name-generators.css';
@@ -109,10 +110,10 @@ function App() {
   const description = document.querySelector('meta[name="description"]')?.getAttribute('content')
     || 'Free online calculators for finance, health, math, education, and everyday life. Fast, accurate, and private.';
   const canonical = document.querySelector('link[rel="canonical"]')?.getAttribute('href')
-    || `https://www.calculatorspoint.com${cleanPath === '/' ? '' : cleanPath}`;
+    || `${SITE_URL}${cleanPath === '/' ? '' : cleanPath}`;
   const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || title;
   const ogDescription = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || description;
-  return <HelmetProvider><Helmet><title>{title}</title><meta name="description" content={description} /><link rel="canonical" href={canonical} /><meta property="og:title" content={ogTitle} /><meta property="og:description" content={ogDescription} /><meta property="og:image" content="https://www.calculatorspoint.com/og-image.png" /><meta name="twitter:card" content="summary_large_image" /></Helmet><ClientProviders><Suspense fallback={<RouteLoadingFallback title={pageTitle} />}><Page slug={pageSlug} /></Suspense></ClientProviders></HelmetProvider>;
+  return <HelmetProvider><Helmet><title>{title}</title><meta name="description" content={description} /><link rel="canonical" href={canonical} /><meta property="og:title" content={ogTitle} /><meta property="og:description" content={ogDescription} /><meta property="og:image" content={`${SITE_URL}/og-image.png`} /><meta name="twitter:card" content="summary_large_image" /></Helmet><ClientProviders><Suspense fallback={<RouteLoadingFallback title={pageTitle} />}><Page slug={pageSlug} /></Suspense></ClientProviders></HelmetProvider>;
 }
 
 // The build emits a visible route-specific HTML fallback for crawlers and

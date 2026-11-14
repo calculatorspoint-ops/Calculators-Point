@@ -10,7 +10,7 @@ const metadata = JSON.parse(await readFile(path.join(dist, 'seo-meta.json'), 'ut
 const seoContent = JSON.parse(await readFile(path.join(dist, 'seo-content.json'), 'utf8'));
 const localizedPairs = new Set(JSON.parse(await readFile(path.join(dist, 'seo-localized-pairs.json'), 'utf8')));
 const viteManifest = JSON.parse(await readFile(path.join(dist, '.vite', 'manifest.json'), 'utf8'));
-const site = (process.env.SITE_URL || 'https://www.calculatorspoint.com').replace(/\/$/, '');
+const site = (process.env.SITE_URL || 'https://calculatorspoint.com').replace(/\/$/, '');
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 }[char]));
