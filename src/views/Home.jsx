@@ -7,6 +7,7 @@ import { CATEGORIES } from "@/data/calculatorCategories";
 import { BY_CATEGORY, ALL_CALCULATORS, POPULAR, NEW_CALCS } from "@/data/calculatorCatalog";
 import { CALC_COUNT_LABEL } from "@/data/calculatorCount";
 import { useAppStore } from "@/store/useAppStore";
+import { QuickCalc } from "@/components/ui/QuickCalc";
 
 /* ── Calculator row item ─────────────────────────────────────────────── */
 function CalcRow({ calc }) {
@@ -180,8 +181,19 @@ export default function Home({ skipHero } = {}) {
               </div>
             </div>
 
-            {/* Right column — Quick calc widget now lives in page.tsx HeroSection */}
-            <div className="hero-widget-col" />
+            {/* Interactive visual makes the hero useful before scrolling. */}
+            <div className="hero-widget-col hero-visual" aria-label="Try the interactive calculator">
+              <div className="hero-visual-orbit" aria-hidden="true" />
+              <div className="hero-float-tile hero-float-percent" aria-hidden="true">%</div>
+              <div className="hero-float-tile hero-float-chart" aria-hidden="true">↗</div>
+              <div className="hero-float-tile hero-float-sigma" aria-hidden="true">∑</div>
+              <div className="hero-float-tile hero-float-pi" aria-hidden="true">π</div>
+              <div className="hero-calc-card">
+                <div className="hero-calc-heading"><span className="hero-calc-dot" /> Try a quick calculation</div>
+                <QuickCalc />
+              </div>
+              <p className="hero-calc-caption">Your calculations stay on your device</p>
+            </div>
           </div>
 
           {/* Category pills */}
