@@ -335,7 +335,7 @@ body:has(.hero) .navbar-icon-btn { color: rgba(255,255,255,.9); }
 body:has(.hero) .navbar-search-input::placeholder { color: rgba(255,255,255,.66); }
 body:has(.hero) .hero-inner {
   max-width: 1540px;
-  padding: clamp(116px, 10vw, 148px) clamp(20px, 3vw, 30px) 34px;
+  padding: clamp(86px, 7vw, 112px) clamp(20px, 3vw, 30px) 8px;
 }
 body:has(.hero) .hero-layout {
   grid-template-columns: minmax(0, 1.08fr) minmax(340px, .92fr);
@@ -421,7 +421,7 @@ body:has(.hero) .hero-pill { padding: 8px 14px; background: rgba(255,255,255,.09
 @media (max-width: 768px) {
   body:has(.hero) .navbar { height:76px; min-height:76px; padding-top:8px; }
   body:has(.hero) .navbar-inner { height:58px; border-radius:20px; }
-  body:has(.hero) .hero-inner { padding:98px 18px 28px!important; }
+  body:has(.hero) .hero-inner { padding:82px 18px 16px!important; }
   body:has(.hero) .hero-layout { grid-template-columns:minmax(0,1fr)!important; gap:12px; }
   body:has(.hero) .hero-title { font-size:clamp(3rem,10vw,4.6rem)!important; }
   body:has(.hero) .hero-widget-col { display:flex!important; }
