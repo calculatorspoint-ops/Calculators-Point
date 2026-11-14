@@ -87,9 +87,9 @@ export default function Calculator() {
                   <span className="badge glass-panel" style={{ fontSize:12, fontWeight: 600 }}>
                     {cat?.icon} {cat?.name}
                   </span>
-                  {calc.popular  && <span className="badge badge-green glass-panel !bg-green-500/10 !border-green-500/20 !text-green-700 dark:!text-green-400">⭐ Popular</span>}
-                  {calc.isNew    && <span className="badge badge-red glass-panel !bg-red-500/10 !border-red-500/20 !text-red-700 dark:!text-red-400">🆕 New</span>}
-                  {calc.hasChart && <span className="badge badge-blue glass-panel !bg-blue-500/10 !border-blue-500/20 !text-blue-700 dark:!text-blue-400">📊 Charts</span>}
+                  {calc.popular  && <span className="badge badge-green glass-panel">⭐ Popular</span>}
+                  {calc.isNew    && <span className="badge badge-red glass-panel">🆕 New</span>}
+                  {calc.hasChart && <span className="badge badge-blue glass-panel">📊 Charts</span>}
                 </div>
                 <div className="cph-actions flex gap-2">
                   <button onClick={() => toggleFavorite(calc.id)} className="glass-panel hover:bg-white/40 dark:hover:bg-black/40 px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-semibold transition-all shadow-sm">

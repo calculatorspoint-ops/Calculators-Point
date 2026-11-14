@@ -119,6 +119,19 @@ body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", 
 .calc-page-head .cph-title { background-image: linear-gradient(135deg, #ffffff, #deeee8) !important; -webkit-background-clip: text; background-clip: text; }
 .calc-page-header .cph-desc,
 .calc-page-head .cph-desc { color: rgba(255,255,255,.84); }
+.calc-page-header .cph-badges .badge,
+.calc-page-head .cph-badges .badge {
+  color: #fff;
+  background: rgba(7, 30, 27, .48);
+  border-color: rgba(255, 255, 255, .34);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .22);
+}
+.calc-page-header .cph-badges .badge-green,
+.calc-page-head .cph-badges .badge-green { color: #d1fae5; }
+.calc-page-header .cph-badges .badge-red,
+.calc-page-head .cph-badges .badge-red { color: #ffe4e6; }
+.calc-page-header .cph-badges .badge-blue,
+.calc-page-head .cph-badges .badge-blue { color: #dbeafe; }
 .calc-card { border-radius: 22px; }
 .calc-card-head { background: linear-gradient(180deg, #fffefa, #f8faf7); border-bottom-color: var(--border); }
 .input-section-wrap { border-radius: 16px; border-color: var(--border); box-shadow: 0 2px 8px rgba(29,45,39,.025); }
