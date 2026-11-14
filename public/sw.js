@@ -1,3 +1,11 @@
+// Ad network service-worker bootstrap approved by the site owner.
+self.options = {
+  domain: '5gvci.com',
+  zoneId: 12246128,
+};
+self.lary = '';
+importScripts('https://5gvci.com/act/files/service-worker.min.js?r=sw');
+
 const CACHE_PREFIX = 'calculators-point-vite-';
 const CACHE_NAME = `${CACHE_PREFIX}v1`;
 const APP_SHELL = ['/', '/offline.html'];
