@@ -15,7 +15,7 @@ const vite = await createServer({
 });
 
 try {
-  const [{ INDEXABLE_CALCULATORS, ALL_CALCULATORS, CATEGORIES, LIVE_CALC_COUNT }, { SEO_LANDING_PAGES }, { getPublishedPosts }, { getPtBrCalcAsync }, { UI_PT_BR }, { STATIC_PAGES_PT_BR }] = await Promise.all([
+  const [{ INDEXABLE_CALCULATORS, ALL_CALCULATORS, CATEGORIES, LIVE_CALC_COUNT, getRelatedCalcs }, { SEO_LANDING_PAGES }, { getPublishedPosts }, { getPtBrCalcAsync }, { UI_PT_BR }, { STATIC_PAGES_PT_BR }] = await Promise.all([
     vite.ssrLoadModule('/src/data/calculatorConfigs.ts'),
     vite.ssrLoadModule('/src/data/seoLandingData.ts'),
     vite.ssrLoadModule('/src/data/blogPosts.ts'),
@@ -61,6 +61,26 @@ try {
     '/name-generators': ['Free Name Generators', 'Explore free generators for baby names, businesses, brands, domains, and social channels.'],
     '/search': ['Search Calculators', 'Find a calculator by name, category, keyword, or common use.'],
   };
+  const ecosystems = {
+    education: {
+      title: 'Free Education Calculators for GPA, Grades & Exams',
+      description: 'Plan grades, GPA, attendance, IELTS and exam targets with free education calculators for students.',
+      heading: 'Education Calculator Suite',
+      intro: 'Plan academic goals with connected tools for GPA, grades, attendance and international exams. Compare your current results with the scores you need next.',
+    },
+    finance: {
+      title: 'Free Finance Calculators for Loans, Savings & Investing',
+      description: 'Compare loan payments, investment growth, savings and income with free finance calculators.',
+      heading: 'Finance & Money Suite',
+      intro: 'Explore connected calculators for loan payments, mortgages, investments, savings, tax and income. See how monthly decisions affect long-term totals.',
+    },
+    fitness: {
+      title: 'Free Fitness Calculators for BMI, Calories & Nutrition',
+      description: 'Estimate BMI, calories, body composition and nutrition with free fitness calculators and clear health disclaimers.',
+      heading: 'Fitness Calculator Suite',
+      intro: 'Use connected fitness and health calculators to estimate BMI, calorie needs, body composition and nutrition. Results are educational estimates, not a medical diagnosis.',
+    },
+  };
   const generatorNames = {
     'baby-name-generator': 'Baby Name Generator', 'business-name-generator': 'Business Name Generator',
     'brand-name-generator': 'Brand Name Generator', 'domain-name-generator': 'Domain Name Generator',
@@ -94,6 +114,11 @@ try {
     if (generatorMatch && generatorNames[generatorMatch[1]]) {
       const name = generatorNames[generatorMatch[1]];
       return [`${name} — Free Online Tool`, `Use our free ${name.toLowerCase()} to explore options and generate ideas instantly.`];
+    }
+    const ecosystemMatch = cleanRoute.match(/^\/ecosystem\/([^/]+)$/);
+    if (ecosystemMatch && ecosystems[ecosystemMatch[1]]) {
+      const ecosystem = ecosystems[ecosystemMatch[1]];
+      return [ecosystem.title, ecosystem.description];
     }
     return staticPages[cleanRoute] || ['Calculators Point', 'Free online calculators for finance, health, math, education, and everyday life.'];
   };
@@ -135,9 +160,17 @@ try {
     const landing = cleanRoute.startsWith('/tools/') ? SEO_LANDING_PAGES.find(({ slug }) => cleanRoute === `/tools/${slug}`) : null;
     const post = cleanRoute.startsWith('/blog/') ? blogPosts.find(({ slug }) => cleanRoute === `/blog/${slug}`) : null;
     const category = cleanRoute.startsWith('/category/') ? CATEGORIES.find(({ id }) => cleanRoute === `/category/${id}`) : null;
-    const heading = localizedCalc?.name || calc?.name || landing?.h1 || post?.title || (category ? (isPtBr ? UI_PT_BR.categories[category.id] || category.name : category.name) + ' Calculators' : metadata[route][0]);
+    const ecosystem = cleanRoute.startsWith('/ecosystem/') ? ecosystems[cleanRoute.split('/')[2]] : null;
+    const heading = localizedCalc?.name || calc?.name || landing?.h1 || post?.title || ecosystem?.heading || (category ? (isPtBr ? UI_PT_BR.categories[category.id] || category.name : category.name) + ' Calculators' : metadata[route][0]);
     const categoryLabel = category ? (isPtBr ? UI_PT_BR.categories[category.id] || category.name : category.name) : '';
-    const intro = localizedCalc?.intro || localizedCalc?.desc || calc?.intro || calc?.desc || landing?.content?.intro || landing?.description || post?.excerpt || (category ? (isPtBr ? `Explore calculadoras gratuitas de ${categoryLabel.toLowerCase()} para tarefas do dia a dia, estudos e planejamento.` : category.desc) : metadata[route][1]);
+    const intro = localizedCalc?.intro || localizedCalc?.desc || calc?.intro || calc?.desc || landing?.content?.intro || landing?.description || post?.excerpt || ecosystem?.intro || (category ? (isPtBr ? `Explore calculadoras gratuitas de ${categoryLabel.toLowerCase()} para tarefas do dia a dia, estudos e planejamento.` : category.desc) : metadata[route][1]);
+    const relatedCalculators = calc ? await Promise.all(getRelatedCalcs(calc, 6).map(async (related) => {
+      const translated = isPtBr ? await getPtBrCalcAsync(related.slug) : null;
+      return isPtBr && !translated ? null : {
+        path: `${isPtBr ? '/pt-br' : ''}/calculator/${related.slug}`,
+        label: translated?.name || related.name,
+      };
+    })) : [];
     seoContent[route] = {
       heading,
       intro,
@@ -146,16 +179,23 @@ try {
         ? { title: (isPtBr ? localizedCalc.workedExample : calc.workedExample).title, steps: (isPtBr ? localizedCalc.workedExample : calc.workedExample).steps, result: (isPtBr ? localizedCalc.workedExample : calc.workedExample).result }
         : null,
       sources: localizedCalc?.sources || calc?.sources || [],
-      links: category ? (await Promise.all(INDEXABLE_CALCULATORS.filter(item => item.cat === category.id).map(async item => {
+      links: calc ? relatedCalculators.filter(Boolean) : category ? (await Promise.all(INDEXABLE_CALCULATORS.filter(item => item.cat === category.id).map(async item => {
         const translated = isPtBr ? await getPtBrCalcAsync(item.slug) : null;
         return isPtBr && !translated ? null : { path: `${isPtBr ? '/pt-br' : ''}/calculator/${item.slug}`, label: translated?.name || item.name };
       }))).filter(Boolean).slice(0, 12) : [],
+      categoryLink: calc ? {
+        path: `${isPtBr ? '/pt-br' : ''}/category/${calc.cat}`,
+        label: `${CATEGORIES.find(({ id }) => id === calc.cat)?.name || 'All'} calculators`,
+      } : null,
     };
     if (isPtBr && localizedCalc) localizedPairs.add(route);
   }
   // Do not claim every URL changed on each build. Add per-page lastmod only
   // when a reliable content-update timestamp is available.
-  const entries = [...urls].map((route) => `  <url><loc>${base}${route}</loc></url>`).join('\n');
+  // Site search is useful to visitors but is a thin index target. Keep its
+  // static route available while excluding it from search indexing and sitemap.
+  const indexableUrls = [...urls].filter((route) => route !== '/search');
+  const entries = indexableUrls.map((route) => `  <url><loc>${base}${route}</loc></url>`).join('\n');
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>\n`;
   await mkdir(path.join(root, 'public'), { recursive: true });
   await writeFile(path.join(root, 'public', 'sitemap.xml'), xml, 'utf8');
