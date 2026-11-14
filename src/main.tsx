@@ -102,8 +102,17 @@ function App() {
     '/terms-of-service': 'Terms of Service', '/cookie-policy': 'Cookie Policy', '/disclaimer': 'Disclaimer',
     '/blog': 'Guides and Insights', '/name-generators': 'Name Generators', '/sitemap': 'Sitemap',
   } as Record<string, string>)[cleanPath] || 'Calculators Point';
-  const description = 'Free online calculators for finance, health, math, education, and everyday life. Fast, accurate, and private.';
-  return <HelmetProvider><Helmet><title>{pageTitle} | Calculators Point</title><meta name="description" content={description} /><link rel="canonical" href={`https://www.calculatorspoint.com${cleanPath}`} /><meta property="og:title" content={`${pageTitle} | Calculators Point`} /><meta property="og:description" content={description} /><meta property="og:image" content="https://www.calculatorspoint.com/og-image.png" /><meta name="twitter:card" content="summary_large_image" /></Helmet><ClientProviders><Suspense fallback={<RouteLoadingFallback title={pageTitle} />}><Page slug={pageSlug} /></Suspense></ClientProviders></HelmetProvider>;
+  // The build prerenders route-specific metadata into each page's HTML. Read it
+  // before React mounts so Helmet does not replace useful calculator titles and
+  // descriptions with the same generic values on every route during hydration.
+  const title = document.title || `${pageTitle} | Calculators Point`;
+  const description = document.querySelector('meta[name="description"]')?.getAttribute('content')
+    || 'Free online calculators for finance, health, math, education, and everyday life. Fast, accurate, and private.';
+  const canonical = document.querySelector('link[rel="canonical"]')?.getAttribute('href')
+    || `https://www.calculatorspoint.com${cleanPath === '/' ? '' : cleanPath}`;
+  const ogTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content') || title;
+  const ogDescription = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || description;
+  return <HelmetProvider><Helmet><title>{title}</title><meta name="description" content={description} /><link rel="canonical" href={canonical} /><meta property="og:title" content={ogTitle} /><meta property="og:description" content={ogDescription} /><meta property="og:image" content="https://www.calculatorspoint.com/og-image.png" /><meta name="twitter:card" content="summary_large_image" /></Helmet><ClientProviders><Suspense fallback={<RouteLoadingFallback title={pageTitle} />}><Page slug={pageSlug} /></Suspense></ClientProviders></HelmetProvider>;
 }
 
 // The build emits a visible route-specific HTML fallback for crawlers and
