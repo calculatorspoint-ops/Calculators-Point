@@ -1,5 +1,5 @@
 'use client';
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useParams } from "@/compat/navigation";
 import Link from "@/compat/link";
 import { redirect } from "@/compat/navigation";
@@ -13,6 +13,9 @@ import { CrossCalcRecommendations } from "@/components/calculator-core/CrossReco
 import { FAQSection } from "@/components/calculator-core/FAQSection";
 import { FeedbackWidget } from "@/components/calculator-core/FeedbackWidget";
 import { InfoAlert } from "@/components/ui/InfoAlert";
+import { SEOContentSection } from '@/components/calculator-core/SEOContentSection';
+import { SEOContentSectionPtBr } from '@/components/calculator-core/SEOContentSectionPtBr';
+import { getPtBrCalcAsync, mergePtBrCalc, type PtBrCalcOverride } from '@/data/pt-br';
 
 const CalculatorWidget = lazy(() => import('@/components/calculator-core/CalculatorWidget').then(m => ({ default: m.CalculatorWidget })));
 const CurrencyBanner = lazy(() => import('@/components/ui/CurrencyBanner'));
@@ -20,10 +23,21 @@ const ExportToolbar = lazy(() => import("@/core/export-engine/ExportToolbar").th
 
 export default function Calculator() {
   const { slug } = useParams() as { slug: string };
-  const calc = slug ? getCalcBySlug(slug) : null;
+  const englishCalc = slug ? getCalcBySlug(slug) : null;
+  const isPtBr = typeof window !== 'undefined' && window.location.pathname.startsWith('/pt-br/');
+  const [ptBrOverride, setPtBrOverride] = useState<PtBrCalcOverride | null>(null);
+  useEffect(() => {
+    let active = true;
+    if (isPtBr && slug) getPtBrCalcAsync(slug).then(value => { if (active) setPtBrOverride(value); });
+    return () => { active = false; };
+  }, [isPtBr, slug]);
+  const calc = isPtBr ? (englishCalc && ptBrOverride ? mergePtBrCalc(englishCalc, ptBrOverride) : null) : englishCalc;
   const { toggleFavorite, favorites } = useAppStore();
 
-  if (!calc) { redirect('/calculators'); return null; }
+  if (!calc) {
+    if (!englishCalc) { redirect('/calculators'); return null; }
+    return <section role="status" aria-live="polite" style={{ maxWidth: 760, margin: '40px auto', padding: 24 }}><h1>Carregando calculadora</h1><p>Preparando o conteúdo em português. Se a página não carregar, <Link href="/calculators">acesse todas as calculadoras</Link>.</p></section>;
+  }
 
   const isFav   = favorites.includes(calc.id);
   const related = getRelated(calc, 7);
@@ -41,7 +55,7 @@ export default function Calculator() {
 
   return (
     <>
-      <SEOHead calc={calc} catName={cat?.name || "Tools"} />
+      <SEOHead calc={calc} catName={cat?.name || "Tools"} isPtBr={isPtBr} hasPtBr={Boolean(ptBrOverride)} />
 
       {/* ══════════ PAGE HEADER ══════════ */}
       <div className="calc-page-header premium-card-bg relative overflow-hidden rounded-b-[2.5rem] shadow-sm mb-3 border-b border-[var(--border)]">
@@ -277,6 +291,7 @@ export default function Calculator() {
           </div>
         </aside>
       </div>
+      {isPtBr ? <SEOContentSectionPtBr calc={calc} /> : <SEOContentSection calc={calc} />}
     </>
   );
 }

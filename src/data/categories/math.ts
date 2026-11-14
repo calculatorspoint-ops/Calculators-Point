@@ -544,6 +544,8 @@ export const mathCalculators: CalculatorConfig[] = [
   cat: 'math',
   name: 'Random Number Generator',
   icon: '🎲',
+  metaTitle: 'Advanced Random Number Generator — Multiple Unique Values',
+  metaDescription: 'Generate multiple random integers or decimals with optional uniqueness and copy-ready output for sampling, classroom activities, and testing.',
   desc: 'Generate random integers or decimals with custom range and count',
   popular: false,
   hasChart: false,

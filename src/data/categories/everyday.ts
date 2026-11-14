@@ -197,6 +197,8 @@ The calculator works for any EV — car, motorcycle, or van — as long as you k
   cat: 'everyday',
   name: 'Random Number Generator',
   icon: '🎲',
+  metaTitle: 'Random Number Generator — Free Secure Random Integers',
+  metaDescription: 'Generate cryptographically secure random numbers in a chosen range. Create single or multiple random values for draws, sampling, and everyday use.',
   desc: 'Integer or decimal random numbers — up to 50 at once',
   popular: false,
   hasChart: false,

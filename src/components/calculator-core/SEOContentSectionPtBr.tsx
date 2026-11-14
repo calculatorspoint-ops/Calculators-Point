@@ -11,6 +11,7 @@ import Link from '@/compat/link';
 import { CATEGORIES, getRelatedCalcs } from '@/data/calculatorConfigs';
 import type { CalculatorConfig } from '@/data/calculatorConfigs';
 import { UI_PT_BR } from '@/data/pt-br/ui';
+import { getPtBrCalcSync } from '@/data/pt-br';
 
 interface SEOContentSectionPtBrProps {
   calc: CalculatorConfig;
@@ -44,9 +45,8 @@ function AuthorBylinePtBr({ lastUpdated }: { lastUpdated: string }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ fontSize: 16 }}>✍️</span>
         <span>
-          <strong style={{ color: 'var(--text2)' }}>Revisado por</strong>{' '}
-          <span style={{ color: 'var(--text)' }}>M. Khurram</span>
-          <span style={{ color: 'var(--text3)', marginLeft: 4 }}>— Engenheiro de Software &amp; Fundador</span>
+          <strong style={{ color: 'var(--text2)' }}>Conteúdo por</strong>{' '}
+          <span style={{ color: 'var(--text)' }}>Calculators Point</span>
         </span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text3)' }}>
@@ -62,19 +62,19 @@ export function SEOContentSectionPtBr({ calc, lastUpdated }: SEOContentSectionPt
   const showDisclaimer = DISCLAIMER_CATS.has(calc.cat) || calc.privacy === 'sensitive';
   const disclaimer = DISCLAIMERS_PT_BR[calc.cat] ?? UI_PT_BR.disclaimers.finance;
 
-  const related = getRelatedCalcs(calc, 6);
+  const related = getRelatedCalcs(calc, 30).filter(item => Boolean(getPtBrCalcSync(item.slug))).slice(0, 6);
   const cat = CATEGORIES.find(c => c.id === calc.cat);
   const catNamePtBr = cat ? UI_PT_BR.categories[cat.id as keyof typeof UI_PT_BR.categories] ?? cat.name : '';
 
   // Build lastUpdated in Portuguese format
   const updatedDate = lastUpdated
     ? new Date(lastUpdated).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long' })
-    : new Date().toLocaleDateString('pt-BR', { year: 'numeric', month: 'long' });
+    : '';
 
   return (
     <div className="seo-content">
       {/* YMYL Author Byline */}
-      {isYMYL && <AuthorBylinePtBr lastUpdated={updatedDate} />}
+      {isYMYL && lastUpdated && <AuthorBylinePtBr lastUpdated={updatedDate} />}
 
       {/* About */}
       {calc.about && (
@@ -191,6 +191,13 @@ export function SEOContentSectionPtBr({ calc, lastUpdated }: SEOContentSectionPt
           <ul className="seo-list">
             {calc.limitations.map((lim, i) => <li key={i}>{lim}</li>)}
           </ul>
+        </section>
+      )}
+
+      {calc.sources && calc.sources.length > 0 && (
+        <section className="seo-block" aria-labelledby="seo-sources-heading">
+          <h2 id="seo-sources-heading" className="seo-h2">Fontes e referências</h2>
+          <ul className="seo-list">{calc.sources.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a></li>)}</ul>
         </section>
       )}
 

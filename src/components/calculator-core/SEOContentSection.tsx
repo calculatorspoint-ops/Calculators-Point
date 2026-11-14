@@ -12,8 +12,7 @@ import type { CalculatorConfig } from '@/data/calculatorConfigs';
 
 interface SEOContentSectionProps {
   calc: CalculatorConfig;
-  /** ISO date string (YYYY-MM-DD) shown as "Last Updated" on YMYL pages.
-   *  Defaults to the build-time current month if not provided. */
+  /** ISO date shown only when a real review date is available. */
   lastUpdated?: string;
 }
 
@@ -61,9 +60,8 @@ function AuthorByline({ lastUpdated }: { lastUpdated: string }) {
     >
       <span>
         ✍️{' '}
-        <strong style={{ color: 'var(--text2)' }}>Reviewed by</strong>{' '}
-        the Calculators Point Editorial Team · Formulas cross-verified against
-        academic and professional sources
+        <strong style={{ color: 'var(--text2)' }}>Content by</strong>{' '}
+        Calculators Point
       </span>
       <span>
         🗓️{' '}
@@ -86,17 +84,14 @@ export function SEOContentSection({ calc, lastUpdated }: SEOContentSectionProps)
   const disclaimer = DISCLAIMERS[calc.cat] ??
     'Disclaimer: Results are for informational purposes only. Please consult a qualified professional before making any important decisions based on this calculator.';
 
-  // YMYL categories get a visible author byline + last-updated date
-  const showByline = YMYL_CATS.has(calc.cat);
-  // Default: "Month Year" of the current build date if no explicit date is supplied
-  const displayDate = lastUpdated
-    ?? new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  // Show an author/review line only when a real review date was supplied.
+  const showByline = YMYL_CATS.has(calc.cat) && Boolean(lastUpdated);
 
   return (
     <section className="seo-content-section" aria-label={`About ${calc.name}`}>
 
       {/* ── E-E-A-T Byline (YMYL pages only) ── */}
-      {showByline && <AuthorByline lastUpdated={displayDate} />}
+      {showByline && lastUpdated && <AuthorByline lastUpdated={lastUpdated} />}
 
       {/* ── About ── */}
       <div className="seo-block">
@@ -232,6 +227,13 @@ export function SEOContentSection({ calc, lastUpdated }: SEOContentSectionProps)
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {calc.sources && calc.sources.length > 0 && (
+        <div className="seo-block">
+          <h2 className="seo-h2">Sources and references</h2>
+          <ul className="seo-list">{calc.sources.map(source => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a></li>)}</ul>
         </div>
       )}
 

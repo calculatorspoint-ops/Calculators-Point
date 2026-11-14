@@ -21,6 +21,7 @@ export interface PtBrCalcOverride {
   metaTitle?: string;
   /** Portuguese meta description */
   metaDescription?: string;
+  sources?: { title: string; url: string }[];
   /** Portuguese tips array */
   tips?: string[];
   /** Portuguese howToUse steps */
@@ -125,6 +126,7 @@ export function mergePtBrCalc(
     ...(ptBr.intro !== undefined && { intro: ptBr.intro }),
     ...(ptBr.metaTitle !== undefined && { metaTitle: ptBr.metaTitle }),
     ...(ptBr.metaDescription !== undefined && { metaDescription: ptBr.metaDescription }),
+    ...(ptBr.sources !== undefined && { sources: ptBr.sources }),
     ...(ptBr.tips !== undefined && { tips: ptBr.tips }),
     ...(ptBr.howToUse !== undefined && { howToUse: ptBr.howToUse }),
     ...(ptBr.examples !== undefined && { examples: ptBr.examples }),

@@ -35,6 +35,10 @@ export const healthCalculators: CalculatorConfig[] = [
   ],
   metaTitle: 'BMI Calculator – Body Mass Index with WHO Classification',
   metaDescription: 'Calculate your BMI instantly with WHO risk categories, ideal weight range, and body fat estimate. Free, accurate, and works in metric or imperial.',
+  sources: [
+    { title: 'CDC Adult BMI Calculator', url: 'https://www.cdc.gov/bmi/adult-calculator/index.html' },
+    { title: 'WHO: Obesity and overweight', url: 'https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight' },
+  ],
   intro: 'BMI (Body Mass Index) is a widely used screening tool that relates your weight to your height to estimate whether you fall within a healthy weight range. This calculator applies the WHO classification system, giving you both your numeric score and the associated health risk category. It\'s useful for adults tracking weight health, though it works best alongside other measurements like waist circumference or body fat percentage.',
   workedExample: {
     title: 'Calculating BMI for a 35-year-old woman (metric)',
@@ -42,10 +46,10 @@ export const healthCalculators: CalculatorConfig[] = [
     steps: [
       'Square the height: 1.65 × 1.65 = 2.7225 m²',
       'Divide weight by height squared: 68 ÷ 2.7225 = 24.98',
-      'Round to one decimal: BMI = 25.0',
-      'WHO category: Overweight (25.0–29.9) — borderline, just above Normal'
+      'Display the result to one decimal: BMI = 25.0. Classification uses the unrounded value.',
+      'WHO adult category: Normal weight (BMI below 25); the rounded display does not change the category.'
     ],
-    result: 'BMI of 25.0 places this individual at the upper boundary of normal weight. A 1–2 kg reduction would move her into the Normal (18.5–24.9) range.'
+    result: 'The unrounded BMI is 24.98, which is below the adult overweight threshold of 25. The displayed value rounds to 25.0. BMI is a screening measure and is not a diagnosis.'
   },
   relatedCalculators: ['bmr-calculator', 'calorie-calculator', 'ideal-weight-calculator', 'body-fat-calculator', 'macro-calculator'],
   about: `Body Mass Index was developed in the 1830s by mathematician Adolphe Quetelet as a population-level statistical tool — not as a diagnostic for individuals. Despite this, it became a clinical standard because it requires only a scale and a tape measure, making it accessible everywhere from clinics to home use.
@@ -801,7 +805,7 @@ Plant-based protein sources (legumes, tofu, tempeh, quinoa) are nutritionally ad
 
 None of these approaches are perfect. They don't account for muscle mass distribution, age-related changes in body composition, or ethnicity-based differences in risk thresholds. Some research suggests Asian populations have elevated metabolic risk at BMI values as low as 23, while musculoskeletal athletes may be healthiest at BMI values above 25.
 
-The most practically useful application of this calculator is to establish a target weight range for gradual, sustainable progress. A 1–2 kg monthly change is generally achievable and clinically safe. Dramatic, rapid weight changes — in either direction — carry health risks independent of the goal.`
+Use the calculated range as one reference point only. This tool does not recommend a target weight or rate of change; individual health questions should be discussed with a qualified healthcare professional.`
 },
   {
   id: 'fat-intake',

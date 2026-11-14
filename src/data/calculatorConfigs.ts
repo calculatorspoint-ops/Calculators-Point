@@ -60,6 +60,8 @@ export interface CalculatorConfig {
 
   /** Custom meta description override (replaces template-generated description) */
   metaDescription?: string;
+  /** Authoritative sources supporting time-sensitive or health-related claims. */
+  sources?: { title: string; url: string }[];
 
   /**
    * Mark as needing content work.

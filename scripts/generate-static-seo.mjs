@@ -15,10 +15,13 @@ const vite = await createServer({
 });
 
 try {
-  const [{ INDEXABLE_CALCULATORS, ALL_CALCULATORS, CATEGORIES, LIVE_CALC_COUNT }, { SEO_LANDING_PAGES }, { getPublishedPosts }] = await Promise.all([
+  const [{ INDEXABLE_CALCULATORS, ALL_CALCULATORS, CATEGORIES, LIVE_CALC_COUNT }, { SEO_LANDING_PAGES }, { getPublishedPosts }, { getPtBrCalcAsync }, { UI_PT_BR }, { STATIC_PAGES_PT_BR }] = await Promise.all([
     vite.ssrLoadModule('/src/data/calculatorConfigs.ts'),
     vite.ssrLoadModule('/src/data/seoLandingData.ts'),
     vite.ssrLoadModule('/src/data/blogPosts.ts'),
+    vite.ssrLoadModule('/src/data/pt-br/index.ts'),
+    vite.ssrLoadModule('/src/data/pt-br/ui.ts'),
+    vite.ssrLoadModule('/src/data/pt-br/static-pages.ts'),
   ]);
   const base = process.env.SITE_URL || 'https://calculatorspoint.com';
   const urls = new Set([
@@ -36,7 +39,13 @@ try {
     ...CATEGORIES.map(({ id }) => `/pt-br/category/${id}`),
     ...INDEXABLE_CALCULATORS.map(({ slug }) => `/pt-br/calculator/${slug}`),
   ]);
+  for (const route of [...urls]) {
+    const translatedCalc = route.match(/^\/pt-br\/calculator\/([^/]+)$/);
+    if (translatedCalc && !(await getPtBrCalcAsync(translatedCalc[1]))) urls.delete(route);
+  }
   const metadata = {};
+  const seoContent = {};
+  const localizedPairs = new Set();
   const staticPages = {
     '/': ['Free Online Calculators', 'Free online calculators for finance, health, math, education, and everyday life. Fast, accurate, and private.'],
     '/calculators': ['All Online Calculators', 'Browse free calculators for finance, health, math, education, construction, business, and everyday needs.'],
@@ -88,15 +97,73 @@ try {
     }
     return staticPages[cleanRoute] || ['Calculators Point', 'Free online calculators for finance, health, math, education, and everyday life.'];
   };
-  for (const route of urls) metadata[route] = routeTitle(route);
-  const modified = new Date().toISOString().slice(0, 10);
-  const entries = [...urls].map((route) => `  <url><loc>${base}${route}</loc><lastmod>${modified}</lastmod></url>`).join('\n');
+  for (const route of urls) {
+    const cleanRoute = route.replace(/^\/pt-br(?=\/|$)/, '') || '/';
+    const calcMatch = cleanRoute.match(/^\/calculator\/([^/]+)$/);
+    const calc = calcMatch ? ALL_CALCULATORS.find(({ slug }) => slug === calcMatch[1]) : null;
+    const isPtBr = route === '/pt-br' || route.startsWith('/pt-br/');
+    let localizedCalc = null;
+    if (isPtBr && calc) localizedCalc = await getPtBrCalcAsync(calc.slug);
+    if (isPtBr && calc && localizedCalc) {
+      metadata[route] = [localizedCalc.metaTitle || `${localizedCalc.name} — Calculadora Online Grátis`, localizedCalc.metaDescription || localizedCalc.desc];
+      localizedPairs.add(route);
+    } else if (isPtBr && cleanRoute.startsWith('/category/')) {
+      const category = CATEGORIES.find(({ id }) => cleanRoute === `/category/${id}`);
+      const label = category ? UI_PT_BR.categories[category.id] || category.name : 'Calculadoras';
+      metadata[route] = [`Calculadoras de ${label} — Calculators Point`, `Explore calculadoras online gratuitas de ${label.toLowerCase()} para uso rápido e fácil.`];
+      localizedPairs.add(route);
+    } else if (isPtBr && cleanRoute === '/') {
+      metadata[route] = ['Calculadoras Online Gratuitas — Calculators Point', 'Calculadoras gratuitas para finanças, saúde, matemática, educação e tarefas do dia a dia.'];
+      localizedPairs.add(route);
+    } else if (isPtBr && cleanRoute === '/calculators') {
+      metadata[route] = ['Todas as Calculadoras — Calculators Point', 'Encontre calculadoras gratuitas para finanças, saúde, matemática, educação e muito mais.'];
+      localizedPairs.add(route);
+    } else if (isPtBr && ['/about','/contact','/privacy-policy','/terms-of-service','/disclaimer','/cookie-policy'].includes(cleanRoute)) {
+      const key = ({ '/privacy-policy': 'privacyPolicy', '/terms-of-service': 'termsOfService', '/cookie-policy': 'cookiePolicy' })[cleanRoute] || cleanRoute.slice(1);
+      const translatedPage = STATIC_PAGES_PT_BR[key]?.meta;
+      if (translatedPage) {
+        metadata[route] = [translatedPage.title, translatedPage.description];
+        localizedPairs.add(route);
+      } else {
+        urls.delete(route);
+        continue;
+      }
+    } else {
+      metadata[route] = routeTitle(route);
+    }
+
+    const landing = cleanRoute.startsWith('/tools/') ? SEO_LANDING_PAGES.find(({ slug }) => cleanRoute === `/tools/${slug}`) : null;
+    const post = cleanRoute.startsWith('/blog/') ? blogPosts.find(({ slug }) => cleanRoute === `/blog/${slug}`) : null;
+    const category = cleanRoute.startsWith('/category/') ? CATEGORIES.find(({ id }) => cleanRoute === `/category/${id}`) : null;
+    const heading = localizedCalc?.name || calc?.name || landing?.h1 || post?.title || (category ? (isPtBr ? UI_PT_BR.categories[category.id] || category.name : category.name) + ' Calculators' : metadata[route][0]);
+    const categoryLabel = category ? (isPtBr ? UI_PT_BR.categories[category.id] || category.name : category.name) : '';
+    const intro = localizedCalc?.intro || localizedCalc?.desc || calc?.intro || calc?.desc || landing?.content?.intro || landing?.description || post?.excerpt || (category ? (isPtBr ? `Explore calculadoras gratuitas de ${categoryLabel.toLowerCase()} para tarefas do dia a dia, estudos e planejamento.` : category.desc) : metadata[route][1]);
+    seoContent[route] = {
+      heading,
+      intro,
+      formula: isPtBr ? localizedCalc?.formula || '' : calc?.formula || '',
+      example: (isPtBr ? localizedCalc?.workedExample : calc?.workedExample)
+        ? { title: (isPtBr ? localizedCalc.workedExample : calc.workedExample).title, steps: (isPtBr ? localizedCalc.workedExample : calc.workedExample).steps, result: (isPtBr ? localizedCalc.workedExample : calc.workedExample).result }
+        : null,
+      sources: localizedCalc?.sources || calc?.sources || [],
+      links: category ? (await Promise.all(INDEXABLE_CALCULATORS.filter(item => item.cat === category.id).map(async item => {
+        const translated = isPtBr ? await getPtBrCalcAsync(item.slug) : null;
+        return isPtBr && !translated ? null : { path: `${isPtBr ? '/pt-br' : ''}/calculator/${item.slug}`, label: translated?.name || item.name };
+      }))).filter(Boolean).slice(0, 12) : [],
+    };
+    if (isPtBr && localizedCalc) localizedPairs.add(route);
+  }
+  // Do not claim every URL changed on each build. Add per-page lastmod only
+  // when a reliable content-update timestamp is available.
+  const entries = [...urls].map((route) => `  <url><loc>${base}${route}</loc></url>`).join('\n');
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries}\n</urlset>\n`;
   await mkdir(path.join(root, 'public'), { recursive: true });
   await writeFile(path.join(root, 'public', 'sitemap.xml'), xml, 'utf8');
   await writeFile(path.join(root, 'public', 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: ${base}/sitemap.xml\n`, 'utf8');
   await writeFile(path.join(root, 'public', 'routes.json'), JSON.stringify([...urls]), 'utf8');
   await writeFile(path.join(root, 'public', 'seo-meta.json'), JSON.stringify(metadata), 'utf8');
+  await writeFile(path.join(root, 'public', 'seo-content.json'), JSON.stringify(seoContent), 'utf8');
+  await writeFile(path.join(root, 'public', 'seo-localized-pairs.json'), JSON.stringify([...localizedPairs]), 'utf8');
   await writeFile(path.join(root, 'src', 'data', 'calculatorCount.ts'), `/* Generated by scripts/generate-static-seo.mjs. Do not edit by hand. */\nexport const CALC_COUNT_LABEL = '${LIVE_CALC_COUNT}+';\n`, 'utf8');
   const catalog = ALL_CALCULATORS.map(({ id, slug, name, desc, cat, icon, popular, isNew, keywords, tags }) => ({
     id, slug, name, desc: desc || '', cat, icon, popular, isNew, keywords, tags,

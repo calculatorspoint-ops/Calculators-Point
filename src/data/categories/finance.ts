@@ -511,37 +511,37 @@ CD laddering — splitting money across multiple terms (e.g., 1-, 2-, 3-, 4-, an
   cat: 'finance',
   name: 'Roth IRA Calculator',
   icon: '💰',
-  desc: 'Tax-free retirement growth with 2024 contribution limits, age-based projections and withdrawal income',
+  desc: 'Tax-free retirement growth projections with annual contribution and withdrawal estimates',
+  sources: [{ title: 'IRS IRA contribution limits', url: 'https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-ira-contribution-limits' }],
   popular: true,
   hasChart: true,
   isNew: true,
   tips: [
-    '2024 Roth IRA limit: $7,000/yr ($8,000 if 50+). All growth and qualified withdrawals are tax-FREE.'
+    'For 2026, the combined traditional and Roth IRA contribution limit is $7,500 ($8,600 if age 50 or older), subject to compensation and Roth income eligibility rules. Verify current IRS limits before contributing.'
   ],
   workedExample: {
-    title: 'Comparing Roth IRA vs Traditional IRA net retirement value for a 30-year-old',
+    title: 'Illustrative Roth IRA growth for a 30-year-old',
     inputs: [
       'Age: 30 | Retirement age: 65 | Years: 35',
-      'Annual contribution: $7,000 (2024 limit)',
+      'Annual contribution: $7,500 (2026 limit for someone under 50)',
       'Expected annual return: 7%',
-      'Current marginal tax rate: 24% | Estimated retirement tax rate: 22%',
+      'Contributions are assumed to continue at the same amount; future tax limits and eligibility are not modeled.',
     ],
     steps: [
-      'FV of $7,000/year at 7% for 35 years: $7,000 × [(1.07^35 − 1) / 0.07] = $7,000 × 138.24 = $967,676',
-      'Roth IRA: withdraw full $967,676 tax-free. Net = $967,676',
-      'Traditional IRA: save $7,000 pre-tax (worth $7,000/0.76 = $9,211 gross contribution equivalent). Account value same $967,676, but pay 22% tax on all withdrawals: net = $967,676 × 0.78 = $754,787',
-      'Roth advantage: $967,676 − $754,787 = $212,889 more in after-tax spendable retirement income',
+      'Future value of $7,500/year at 7% for 35 years: about $1,036,800 before fees and taxes',
+      'Qualified Roth IRA distributions may be tax-free when distribution requirements are met.',
+      'Traditional IRA withdrawals are generally taxable; the result depends on the person’s tax situation.',
     ],
-    result: 'Roth IRA produces $212,889 more after-tax retirement wealth assuming tax rates stay similar. Roth wins when retirement tax rate ≥ current rate. Traditional IRA wins if retirement tax rate is significantly lower — e.g., dropping from 32% to 12%.',
+    result: 'This is an illustrative compound-growth estimate, not a comparison of after-tax outcomes. Actual eligibility, contribution limits, returns, fees and tax treatment vary.',
   },
 
-      about: `The Roth IRA's defining advantage is tax-free growth: you contribute after-tax dollars, but all growth and qualified withdrawals after age 59½ are completely tax-free. For someone in the 22% bracket who converts $7,000 in annual contributions into $500,000 over 35 years, the tax savings versus a traditional IRA could exceed $100,000.
+      about: `The Roth IRA's defining advantage is that qualified distributions may be tax-free when IRS requirements are met. Contributions are made with after-tax funds, and eligibility and distribution rules apply.
 
-The 2024 contribution limit is $7,000 per year ($8,000 if you're 50 or older), subject to income phase-out limits starting at $146,000 for single filers and $230,000 for married filing jointly. High earners above the limit can use a backdoor Roth conversion to maintain access.
+For 2026, the combined traditional and Roth IRA contribution limit is $7,500 ($8,600 if age 50 or older), or taxable compensation if lower. Roth IRA contributions can be further limited by income and filing status. This calculator does not determine eligibility or Roth income phase-outs; verify the current IRS rules before contributing.
 
 Unlike Traditional IRAs, Roth IRAs have no Required Minimum Distributions (RMDs) — you can let the money grow tax-free indefinitely and pass it to heirs. This makes the Roth IRA uniquely valuable for estate planning as well as retirement income.
 
-Starting at age 25 vs. age 35 with $7,000/year at 7% annual return produces roughly $1.37M vs. $740K at age 65 — the $70,000 in extra contributions made over the earlier decade more than doubles the final balance through compound growth.`
+Starting earlier gives contributions more time to compound. This calculator holds the annual contribution and return assumption constant and does not project future contribution-limit changes.`
 },
   {
   id: 'annuity',
@@ -630,22 +630,21 @@ Qualified Charitable Distributions (QCDs) — up to $105,000/year — count towa
   cat: 'finance',
   name: 'Estate Tax Calculator',
   icon: '⚖️',
-  desc: 'Federal estate tax with 2024 exemption, deductions and effective rate calculation',
+  desc: 'Federal estate tax estimate using the 2026 basic exclusion and deductions',
+  sources: [{ title: 'IRS Form 706 instructions', url: 'https://www.irs.gov/instructions/i706' }],
   popular: false,
   hasChart: false,
   isNew: true,
   tips: [
-    '2024 federal estate tax exemption: $13.61M per person. Tax rate above exemption is 40%.'
+    'For 2026, the federal basic estate tax exclusion is $15 million per person. This simplified estimate does not model every estate tax rule; verify current IRS guidance.'
   ],
-      about: `The federal estate tax applies only to estates exceeding the lifetime exemption — $13.61 million per individual in 2024 ($27.22 million for a married couple with proper planning). Fewer than 0.2% of estates actually pay federal estate tax, but for those that do, the rate above the exemption is a flat 40%.
+      about: `For decedents dying in 2026, the federal basic exclusion amount is $15 million per person. The applicable exclusion may differ because of adjusted taxable gifts and a deceased spouse's unused exclusion. The federal estate tax is progressive, with a top marginal rate of 40%; this calculator uses a simplified estimate and does not model the full Form 706 computation.
 
-Example: an estate worth $20 million with no planning faces a taxable estate of $6.39 million above the exemption, resulting in a federal tax bill of $2,556,000 — payable within nine months of death.
+Example: an estate worth $20 million with no deductions or prior taxable gifts is $5 million above the 2026 basic exclusion before applying the full estate tax computation.
 
 The unlimited marital deduction allows spouses to transfer any amount to each other tax-free. Portability allows a surviving spouse to "inherit" the deceased spouse's unused exemption. Without a portability election on the first spouse's estate return (due nine months after death), that exemption is lost permanently.
 
-Key strategies for large estates: irrevocable life insurance trusts (ILITs), grantor retained annuity trusts (GRATs), qualified personal residence trusts (QPRTs), and annual exclusion gifts ($18,000 per recipient in 2024) that remove assets from the taxable estate without using the lifetime exemption.
-
-Important: the current $13.61M exemption is scheduled to sunset to roughly $7M (inflation-adjusted) in 2026 without Congressional action — making estate planning particularly time-sensitive for those with estates above that threshold.`
+This calculator is an educational estimate. It does not account for the complete graduated tax schedule, prior gifts, deductions, portability elections or state taxes. Consult current IRS instructions and a qualified tax professional for filing or planning decisions.`
 },
   {
   id: 'marriage-tax',
@@ -653,7 +652,8 @@ Important: the current $13.61M exemption is scheduled to sunset to roughly $7M (
   cat: 'finance',
   name: 'Marriage Tax Calculator',
   icon: '💍',
-  desc: 'Marriage tax bonus or penalty comparing single vs married filing jointly using 2024 US tax brackets',
+  desc: 'Estimate a federal marriage tax bonus or penalty using 2026 US tax brackets and standard deductions',
+  sources: [{ title: 'IRS 2026 tax inflation adjustments', url: 'https://www.irs.gov/newsroom/working-families-tax-cuts-individuals-and-workers' }],
   popular: false,
   hasChart: true,
   isNew: true,
@@ -664,11 +664,11 @@ Important: the current $13.61M exemption is scheduled to sunset to roughly $7M (
 
 Marriage bonus example: one spouse earns $120,000, the other earns $30,000. Filing jointly combines their $150,000 income, but the MFJ brackets are wide enough that their combined tax is less than their two individual tax bills would have been.
 
-Marriage penalty example: two people each earning $200,000 would each pay tax on $200,000 as singles. Married, their $400,000 combined income pushes a larger portion into the 35% bracket, which begins at $487,450 MFJ vs. $243,725 single — nearly the same threshold despite double the income.
+Marriage penalty example: two people each earning $200,000 may face different marginal brackets when filing jointly. For 2026 taxable income, the 35% bracket begins above $256,225 for single filers and $512,450 for joint filers; this calculator applies standard deductions before estimating tax.
 
-In 2024, the penalty is most pronounced for couples in the 32–37% brackets where equal earners face meaningful disadvantage. The standard deduction ($29,200 MFJ vs. $14,600 single in 2024) is exactly doubled, which is neutral. The real penalty concentrates in the upper-middle brackets.
+For tax year 2026, the standard deduction is $16,100 for single filers and $32,200 for married filing jointly. Brackets and deductions can change by tax year. This simplified calculator does not include credits, state taxes, itemized deductions or every special tax rule.
 
-This calculator shows your exact tax liability as single filers vs. married, quantifying the bonus or penalty to the dollar.`
+This calculator estimates federal income tax using the 2026 brackets and standard deductions. It excludes credits, state taxes, itemized deductions and special tax rules, so it is not an exact tax liability calculation.`
 },
   {
   id: 'boat-loan',
@@ -952,7 +952,7 @@ The payoff date this calculator provides makes the abstract concrete: you can se
   ],
       about: `The National Pension System (NPS) is India's market-linked retirement scheme offering a combination of equity, corporate bonds, and government securities based on your chosen allocation. Contributions are tax-deductible under three separate sections — making it one of the most tax-efficient savings vehicles available.
 
-Tax benefits in 2024: Section 80C (up to ₹1.5 lakh, shared with other 80C investments), Section 80CCD(1) (employee's own contribution up to 10% of salary within the 80C limit), and the exclusive Section 80CCD(1B) extra deduction of ₹50,000 — giving high earners a combined potential deduction of ₹2 lakh from NPS alone.
+NPS tax treatment depends on the applicable tax year, regime, contribution type and current law. This calculator does not determine eligibility for deductions or tax benefits; check the current Income Tax Department guidance before relying on a deduction.
 
 Corpus growth example: contributing ₹5,000/month from age 30 to 60 in an aggressive allocation (75% equity) at an assumed 10% annual return produces a corpus of approximately ₹1.13 crore. Conservative allocation (25% equity) at 7% returns produces ₹61 lakhs. The equity allocation significantly affects outcomes over 30 years.
 

@@ -90,6 +90,8 @@ function RouteLoadingFallback({ title }: { title: string }) {
 
 function App() {
   const pathname = window.location.pathname;
+  const isPtBr = pathname === '/pt-br' || pathname.startsWith('/pt-br/');
+  React.useEffect(() => { document.documentElement.lang = isPtBr ? 'pt-BR' : 'en'; }, [isPtBr]);
   const Page = resolvePage(pathname);
   const match = pathname.match(/^\/(?:tools|blog|calculator|category|ecosystem)\/([^/]+)/);
   const pageSlug = match ? decodeURIComponent(match[1]) : undefined;
@@ -104,6 +106,9 @@ function App() {
   return <HelmetProvider><Helmet><title>{pageTitle} | Calculators Point</title><meta name="description" content={description} /><link rel="canonical" href={`https://calculatorspoint.com${cleanPath}`} /><meta property="og:title" content={`${pageTitle} | Calculators Point`} /><meta property="og:description" content={description} /><meta property="og:image" content="https://calculatorspoint.com/og-image.png" /><meta name="twitter:card" content="summary_large_image" /></Helmet><ClientProviders><Suspense fallback={<RouteLoadingFallback title={pageTitle} />}><Page slug={pageSlug} /></Suspense></ClientProviders></HelmetProvider>;
 }
 
+// The build emits a visible route-specific HTML fallback for crawlers and
+// visitors without JavaScript. The hydrated app replaces that content.
+document.getElementById('seo-fallback')?.remove();
 createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {

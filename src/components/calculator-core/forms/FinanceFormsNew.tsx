@@ -1395,6 +1395,10 @@ export function RothIRAForm() {
   const [rate, setRate] = useState(7);
   const [currentBalance, setCurrentBalance] = useState("0");
   const [res, setRes] = useState(null);
+  const contributionLimit = currentAge >= 50 ? 8600 : 7500;
+  useEffect(() => {
+    setContribution(value => Math.min(value, contributionLimit));
+  }, [contributionLimit]);
 
   useEffect(() => {
     const years = retireAge - currentAge;
@@ -1421,7 +1425,7 @@ export function RothIRAForm() {
         { label: "Monthly Income (4%)", value: fm(Math.round(fv * 0.04 / 12)), highlight: true },
         { label: "Investment Years", value: years + " years" },
       ],
-      [{ type: "tip", msg: fm(Math.round(gains)) + " in tax-FREE gains! 2024 limit: $7,000/yr ($8,000 if 50+). All qualified withdrawals are completely tax-free." }],
+      [{ type: "tip", msg: fm(Math.round(gains)) + ` in projected growth. The 2026 combined IRA contribution limit is ${fm(contributionLimit)}/year at the selected age, subject to taxable compensation and Roth income eligibility. Qualified distributions may be tax-free when IRS requirements are met.` }],
       chart, []));
   }, [contribution, currentAge, retireAge, rate, currentBalance]);
 
@@ -1431,13 +1435,16 @@ export function RothIRAForm() {
       inputTitle="Roth IRA"
       inputIcon="💰"
       inputContent={<>
-        <Sl label="Annual Contribution" id="rira_c" min={500} max={7000} step={500} value={contribution} onChange={setContribution} fmt={v => fmSlider(v)} />
+        <Sl label="Annual Contribution (2026 limit applies)" id="rira_c" min={500} max={contributionLimit} step={100} value={contribution} onChange={setContribution} fmt={v => fmSlider(v)} />
         <Row2>
           <N label="Current Age" id="rira_ca" value={String(currentAge)} onChange={v => setCurrentAge(+v)} unit="yrs" />
           <N label="Retirement Age" id="rira_ra" value={String(retireAge)} onChange={v => setRetireAge(+v)} unit="yrs" />
         </Row2>
         <Sl label="Expected Annual Return (%)" id="rira_r" min={1} max={15} step={0.5} value={rate} onChange={setRate} fmt={v => v + "%"} />
         <N label="Current Balance" id="rira_bal" value={currentBalance} onChange={setCurrentBalance} unit={sym} placeholder="0" />
+        <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.5 }}>
+          The limit applies to all traditional and Roth IRAs combined and may be lower if compensation is lower. Roth eligibility can also depend on income. See <a href="https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-ira-contribution-limits" target="_blank" rel="noreferrer">current IRS IRA limits</a>.
+        </p>
       </>}
       result={res}
       label="Roth IRA"
@@ -1647,7 +1654,7 @@ export function EstateTaxForm() {
   const [res, setRes] = useState(null);
 
   useEffect(() => {
-    const EXEMPTION = 13610000;
+    const EXEMPTION = 15000000;
     const taxable = Math.max(0, grossEstate - (+debts||0) - (+charitable||0) - (+marital||0));
     const aboveExemption = Math.max(0, taxable - EXEMPTION);
     const tax = aboveExemption * 0.40;
@@ -1661,9 +1668,9 @@ export function EstateTaxForm() {
       ],
       [{ type: tax > 0 ? "warn" : "tip", msg: tax > 0
         ? "Estate tax of " + fm(Math.round(tax)) + " is due. Consider trusts or gifting strategies to reduce taxable estate."
-        : "Your estate is below the 2024 federal exemption of $13.61M. No federal estate tax owed." }],
+        : "Your estate is below the 2026 federal basic exclusion of $15 million. This simplified estimate does not include every estate tax rule." }],
       null, [
-        { label: "2024 Federal Exemption", value: "$13,610,000" },
+        { label: "2026 Federal Basic Exclusion", value: "$15,000,000" },
         { label: "Tax Rate Above Exemption", value: "40%" },
       ]));
   }, [grossEstate, debts, charitable, marital]);
@@ -1680,6 +1687,9 @@ export function EstateTaxForm() {
           <N label="Charitable Deductions" id="et_c" value={charitable} onChange={setCharitable} unit="$" placeholder="0" />
           <N label="Marital Deduction" id="et_m" value={marital} onChange={setMarital} unit="$" placeholder="0" />
         </Row2>
+        <p style={{ fontSize: 12, color: "var(--text3)", lineHeight: 1.5 }}>
+          Uses the 2026 basic federal exclusion as a simplified estimate; it does not model the full estate tax schedule, adjusted gifts, portability or state tax. See <a href="https://www.irs.gov/instructions/i706" target="_blank" rel="noreferrer">IRS Form 706 instructions</a>.
+        </p>
       </>}
       result={res}
       label="Estate Tax"
@@ -1694,9 +1704,9 @@ export function MarriageTaxForm() {
   const [income2, setIncome2] = useState("70000");
   const [res, setRes] = useState(null);
 
-  function calcTax2024(income, filing) {
-    const single = [[11600,0.10],[47150,0.12],[100525,0.22],[191950,0.24],[243725,0.32],[609350,0.35],[Infinity,0.37]];
-    const married = [[23200,0.10],[94300,0.12],[201050,0.22],[383900,0.24],[487450,0.32],[731200,0.35],[Infinity,0.37]];
+  function calcTax2026(income, filing) {
+    const single = [[12400,0.10],[50400,0.12],[105700,0.22],[201775,0.24],[256225,0.32],[640600,0.35],[Infinity,0.37]];
+    const married = [[24800,0.10],[100800,0.12],[211400,0.22],[403550,0.24],[512450,0.32],[768700,0.35],[Infinity,0.37]];
     const brackets = filing === "single" ? single : married;
     let tax = 0, prev = 0;
     for (const [limit, rate] of brackets) {
@@ -1710,9 +1720,11 @@ export function MarriageTaxForm() {
   useEffect(() => {
     const i1 = +income1||0, i2 = +income2||0;
     if (!i1) { setRes(null); return; }
-    const t1 = calcTax2024(i1,"single"), t2 = calcTax2024(i2,"single");
+    const standardDeductionSingle = 16100;
+    const standardDeductionJoint = 32200;
+    const t1 = calcTax2026(Math.max(0, i1 - standardDeductionSingle),"single"), t2 = calcTax2026(Math.max(0, i2 - standardDeductionSingle),"single");
     const totalSingle = t1 + t2;
-    const marriedTax = calcTax2024(i1+i2,"married");
+    const marriedTax = calcTax2026(Math.max(0, i1+i2 - standardDeductionJoint),"married");
     const diff = marriedTax - totalSingle;
     const isBonus = diff < 0;
     setRes(buildResult(isBonus ? "Marriage Bonus" : "Marriage Penalty", fm(Math.abs(diff)),
@@ -1726,6 +1738,10 @@ export function MarriageTaxForm() {
         ? "You save " + fm(Math.abs(diff)) + " by filing jointly! Bonus typically occurs when incomes differ significantly."
         : "Filing jointly costs " + fm(diff) + " more (marriage penalty). Occurs when both spouses have similar incomes." }],
       null, [
+        { label: "Tax year / deduction assumption", value: "2026 brackets; standard deduction" },
+        { label: "Person 1 Taxable Income (Single)", value: fm(Math.max(0, i1 - standardDeductionSingle)) },
+        { label: "Person 2 Taxable Income (Single)", value: fm(Math.max(0, i2 - standardDeductionSingle)) },
+        { label: "Joint Taxable Income", value: fm(Math.max(0, i1+i2 - standardDeductionJoint)) },
         { label: "Person 1 Tax (Single)", value: fm(t1) },
         { label: "Person 2 Tax (Single)", value: fm(t2) },
         { label: "Joint Tax", value: fm(marriedTax) },
@@ -1738,10 +1754,10 @@ export function MarriageTaxForm() {
       inputTitle="Marriage Tax"
       inputIcon="💍"
       inputContent={<>
-        <N label="Person 1 Annual Income" id="mt1" value={income1} onChange={setIncome1} unit="$" />
-        <N label="Person 2 Annual Income" id="mt2" value={income2} onChange={setIncome2} unit="$" />
+        <N label="Person 1 Gross Annual Income" id="mt1" value={income1} onChange={setIncome1} unit="$" />
+        <N label="Person 2 Gross Annual Income" id="mt2" value={income2} onChange={setIncome2} unit="$" />
         <div style={{padding:"12px",background:"var(--surface2)",borderRadius:"var(--r-lg)",border:"1px solid var(--border)",marginTop:12,fontSize:12,color:"var(--text3)"}}>
-          Based on 2024 US Federal Tax Brackets. State taxes not included.
+          2026 US federal brackets and standard deductions. Excludes credits, state taxes, itemized deductions, payroll taxes and special tax rules. Educational estimate only. See <a href="https://www.irs.gov/newsroom/working-families-tax-cuts-individuals-and-workers" target="_blank" rel="noreferrer">IRS 2026 tax values</a>.
         </div>
       </>}
       result={res}

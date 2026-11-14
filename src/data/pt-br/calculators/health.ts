@@ -30,10 +30,10 @@ export const healthPtBr: PtBrRegistry = {
       steps: [
         'Eleve a altura ao quadrado: 1,65 × 1,65 = 2,7225 m²',
         'Divida o peso pela altura ao quadrado: 68 ÷ 2,7225 = 24,98',
-        'Arredonde para um decimal: IMC = 25,0',
-        'Categoria OMS: Sobrepeso (25,0–29,9) — no limite, logo acima do Normal'
+        'Exiba o resultado com uma casa decimal: IMC = 25,0. A classificação usa o valor sem arredondamento.',
+        'Categoria adulta da OMS: peso normal (IMC abaixo de 25); o arredondamento exibido não altera a categoria.'
       ], 
-      result: 'Um IMC de 25,0 coloca este indivíduo no limite superior do peso normal. Uma redução de 1–2 kg a moveria para a faixa Normal (18,5–24,9).' 
+      result: 'O IMC sem arredondamento é 24,98, abaixo do limite de 25 para sobrepeso em adultos. O valor exibido é arredondado para 25,0. O IMC é uma medida de triagem, não um diagnóstico.'
     },
     about: 'O Índice de Massa Corporal foi desenvolvido na década de 1830 pelo matemático Adolphe Quetelet como uma ferramenta estatística em nível populacional — não como um diagnóstico para indivíduos. Apesar disso, tornou-se um padrão clínico porque requer apenas uma balança e uma fita métrica, tornando-o acessível em todos os lugares, de clínicas ao uso doméstico.\n\nOs limites de classificação da OMS são baseados em estudos em nível populacional de risco cardiovascular e metabólico. Eles são um ponto de partida útil, mas não levam em conta massa muscular, densidade óssea, idade ou como a gordura é distribuída.\n\nUse o resultado do seu IMC como um dado entre vários. Combiná-lo com a circunferência da cintura e a porcentagem de gordura corporal oferece uma imagem muito mais completa da sua saúde metabólica.',
     whenToUse: 'Use esta calculadora como uma ferramenta de triagem inicial rápida para determinar se o seu peso se enquadra em uma faixa saudável para a sua altura, de acordo com a Organização Mundial da Saúde.',

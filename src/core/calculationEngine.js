@@ -416,20 +416,23 @@ export function calcBMI({ weight, height, gender, age=30, unit="metric" }) {
   if (unit === "imperial") { wKg = wKg*0.453592; hM = hM*0.3048; }
   if (!wKg || !hM) return null;
 
-  const bmi = round(wKg/(hM*hM), 1);
+  const rawBmi = wKg/(hM*hM);
+  const bmi = round(rawBmi, 1);
   const CATS = [
-    {max:16,   label:"Severely Underweight",color:"#123C37",risk:"Very High",tip:"Immediate medical attention needed. Consult a doctor."},
-    {max:18.5, label:"Underweight",         color:"#216459",risk:"High",    tip:"Consider a nutrition plan to gain healthy weight."},
-    {max:25,   label:"Normal Weight",       color:"#3b8a78",risk:"Low",     tip:"Great! Maintain with balanced diet and regular exercise."},
-    {max:30,   label:"Overweight",          color:"#A96D2E",risk:"Moderate",tip:"Light exercise and dietary changes can help."},
-    {max:35,   label:"Obese Class I",       color:"#A96D2E",risk:"High",    tip:"Structured weight loss program recommended."},
-    {max:40,   label:"Obese Class II",      color:"#A94F48",risk:"Very High",tip:"Medical supervision strongly advised."},
-    {max:Infinity,label:"Obese Class III",  color:"#991b1b",risk:"Extreme", tip:"Immediate medical intervention recommended."},
+    {max:16,   label:"Severely Underweight",color:"#123C37",risk:"Very High",tip:"This result is outside the standard adult BMI range. BMI is a screening measure, not a diagnosis."},
+    {max:18.5, label:"Underweight",         color:"#216459",risk:"High",    tip:"This result is below the standard adult BMI range. Interpret it with other health information."},
+    {max:25,   label:"Normal Weight",       color:"#3b8a78",risk:"Low",     tip:"This result is within the standard adult BMI range. BMI is one screening measure."},
+    {max:30,   label:"Overweight",          color:"#A96D2E",risk:"Moderate",tip:"This result is above the standard adult BMI range. BMI alone does not determine health."},
+    {max:35,   label:"Obese Class I",       color:"#A96D2E",risk:"High",    tip:"This result is above the standard adult BMI range. BMI alone does not diagnose a condition."},
+    {max:40,   label:"Obese Class II",      color:"#A94F48",risk:"Very High",tip:"This result is above the standard adult BMI range. Consider discussing questions with a clinician."},
+    {max:Infinity,label:"Obese Class III",  color:"#991b1b",risk:"Extreme", tip:"This result is above the standard adult BMI range. Consider discussing questions with a clinician."},
   ];
-  const cat = CATS.find(c => bmi < c.max);
+  // Assign the category from the unrounded result so display rounding cannot
+  // move someone across a clinical threshold (e.g. 24.98 -> 25.0).
+  const cat = CATS.find(c => rawBmi < c.max);
   const idealMin = round(18.5*hM*hM, 1);
   const idealMax = round(24.9*hM*hM, 1);
-  const toIdeal   = bmi > 25 ? round(wKg - idealMax, 1) : bmi < 18.5 ? round(idealMin - wKg, 1) : 0;
+  const toIdeal   = rawBmi > 25 ? round(wKg - idealMax, 1) : rawBmi < 18.5 ? round(idealMin - wKg, 1) : 0;
   const gauge     = clamp((bmi-10)/35*100, 2, 98);
 
   // Approx body fat (Deurenberg formula) — uses actual age
@@ -447,12 +450,12 @@ export function calcBMI({ weight, height, gender, age=30, unit="metric" }) {
       {label:"Category",     value:cat.label,bold:true},
       {label:"Health Risk",  value:cat.risk},
       {label:"Ideal Weight", value:idealMin+"–"+idealMax+" kg"},
-      ...(toIdeal>0?[{label:bmi>25?"Weight to lose":"Weight to gain",value:toIdeal+" kg",bold:true}]:[]),
+      ...(toIdeal>0?[{label:rawBmi>25?"Difference above normal range":"Difference below normal range",value:toIdeal+" kg",bold:true}]:[]),
     ],
     insights:[
-      {type:cat.label==="Normal Weight"?"good":"warn",msg:cat.tip},
+      {type:cat.label==="Normal Weight"?"good":"info",msg:cat.tip},
       {type:"info",msg:`Ideal weight for your height: ${idealMin}–${idealMax} kg`},
-      toIdeal>0&&{type:bmi>25?"bad":"info",msg:`${bmi>25?"Lose":"Gain"} approx ${Math.abs(toIdeal)} kg to reach normal range`},
+      toIdeal>0&&{type:"info",msg:`Difference from the calculated BMI range: ${Math.abs(toIdeal)} kg. BMI is a screening measure, not a diagnosis; discuss health questions with a qualified clinician.`},
     ].filter(Boolean),
   };
 }
