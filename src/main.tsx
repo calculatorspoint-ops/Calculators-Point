@@ -103,7 +103,7 @@ function App() {
     '/blog': 'Guides and Insights', '/name-generators': 'Name Generators', '/sitemap': 'Sitemap',
   } as Record<string, string>)[cleanPath] || 'Calculators Point';
   const description = 'Free online calculators for finance, health, math, education, and everyday life. Fast, accurate, and private.';
-  return <HelmetProvider><Helmet><title>{pageTitle} | Calculators Point</title><meta name="description" content={description} /><link rel="canonical" href={`https://calculatorspoint.com${cleanPath}`} /><meta property="og:title" content={`${pageTitle} | Calculators Point`} /><meta property="og:description" content={description} /><meta property="og:image" content="https://calculatorspoint.com/og-image.png" /><meta name="twitter:card" content="summary_large_image" /></Helmet><ClientProviders><Suspense fallback={<RouteLoadingFallback title={pageTitle} />}><Page slug={pageSlug} /></Suspense></ClientProviders></HelmetProvider>;
+  return <HelmetProvider><Helmet><title>{pageTitle} | Calculators Point</title><meta name="description" content={description} /><link rel="canonical" href={`https://www.calculatorspoint.com${cleanPath}`} /><meta property="og:title" content={`${pageTitle} | Calculators Point`} /><meta property="og:description" content={description} /><meta property="og:image" content="https://www.calculatorspoint.com/og-image.png" /><meta name="twitter:card" content="summary_large_image" /></Helmet><ClientProviders><Suspense fallback={<RouteLoadingFallback title={pageTitle} />}><Page slug={pageSlug} /></Suspense></ClientProviders></HelmetProvider>;
 }
 
 // The build emits a visible route-specific HTML fallback for crawlers and

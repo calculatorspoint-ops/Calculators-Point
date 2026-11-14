@@ -16,9 +16,6 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-  if (isProduction && req.hostname === 'www.calculatorspoint.com') {
-    return res.redirect(308, `https://calculatorspoint.com${req.originalUrl}`);
-  }
   const forceHttps = process.env.FORCE_HTTPS === 'true' || (isProduction && process.env.FORCE_HTTPS !== 'false');
   if (forceHttps && req.get('x-forwarded-proto') !== 'https') {
     return res.redirect(308, `https://${req.get('host')}${req.originalUrl}`);

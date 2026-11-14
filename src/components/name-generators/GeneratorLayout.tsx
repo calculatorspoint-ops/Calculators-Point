@@ -69,7 +69,7 @@ export function GeneratorLayout({
     '@type': 'WebApplication',
     name: tool.title,
     description: tool.metaDescription,
-    url: `https://calculatorspoint.com/name-generators/${tool.slug}`,
+    url: `https://www.calculatorspoint.com/name-generators/${tool.slug}`,
     applicationCategory: 'UtilitiesApplication',
     operatingSystem: 'Any',
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

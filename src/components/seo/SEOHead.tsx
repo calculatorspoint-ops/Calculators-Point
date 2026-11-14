@@ -8,19 +8,19 @@ import { Helmet } from 'react-helmet-async';
 export function SEOHead({ calc, catName, isPtBr = false, hasPtBr = false }: { calc: CalculatorConfig; catName: string; isPtBr?: boolean; hasPtBr?: boolean }) {
   const title = calc.metaTitle || `${calc.name} — Free Online Calculator`;
   const description = calc.metaDescription || calc.desc;
-  const canonical = `https://calculatorspoint.com${isPtBr ? `/pt-br/calculator/${calc.slug}` : `/calculator/${calc.slug}`}`;
+  const canonical = `https://www.calculatorspoint.com${isPtBr ? `/pt-br/calculator/${calc.slug}` : `/calculator/${calc.slug}`}`;
   return <Helmet>
     <title>{title} | Calculators Point</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    {hasPtBr && <link rel="alternate" hrefLang="en" href={`https://calculatorspoint.com/calculator/${calc.slug}`} />}
-    {hasPtBr && <link rel="alternate" hrefLang="pt-BR" href={`https://calculatorspoint.com/pt-br/calculator/${calc.slug}`} />}
-    {hasPtBr && <link rel="alternate" hrefLang="x-default" href={`https://calculatorspoint.com/calculator/${calc.slug}`} />}
+    {hasPtBr && <link rel="alternate" hrefLang="en" href={`https://www.calculatorspoint.com/calculator/${calc.slug}`} />}
+    {hasPtBr && <link rel="alternate" hrefLang="pt-BR" href={`https://www.calculatorspoint.com/pt-br/calculator/${calc.slug}`} />}
+    {hasPtBr && <link rel="alternate" hrefLang="x-default" href={`https://www.calculatorspoint.com/calculator/${calc.slug}`} />}
     <meta property="og:type" content="website" />
     <meta property="og:title" content={`${title} | Calculators Point`} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content="https://calculatorspoint.com/og-image.png" />
+    <meta property="og:image" content="https://www.calculatorspoint.com/og-image.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={`${title} | Calculators Point`} />
     <meta name="twitter:description" content={description} />

@@ -23,7 +23,7 @@ try {
     vite.ssrLoadModule('/src/data/pt-br/ui.ts'),
     vite.ssrLoadModule('/src/data/pt-br/static-pages.ts'),
   ]);
-  const base = process.env.SITE_URL || 'https://calculatorspoint.com';
+  const base = process.env.SITE_URL || 'https://www.calculatorspoint.com';
   const urls = new Set([
     '/', '/calculators', '/cheat-sheets', '/about', '/contact', '/privacy-policy', '/search',
     '/terms-of-service', '/disclaimer', '/cookie-policy', '/sitemap', '/blog',

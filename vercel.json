@@ -13,18 +13,5 @@
         }
       ]
     }
-  ],
-  "redirects": [
-    {
-      "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.calculatorspoint.com"
-        }
-      ],
-      "destination": "https://calculatorspoint.com/$1",
-      "permanent": true
-    }
   ]
 }
