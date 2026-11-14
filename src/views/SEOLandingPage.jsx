@@ -47,7 +47,7 @@ export default function SEOLandingPage({ slug }) {
       {/* ── Hero Header ── */}
       <div style={{
         background: "linear-gradient(135deg, var(--p900) 0%, var(--brand) 50%, var(--p700) 100%)",
-        padding: "48px 20px 40px", textAlign: "center",
+        padding: "32px 20px 26px", textAlign: "center",
       }}>
         <div style={{ maxWidth: 700, margin: "0 auto" }}>
           {/* Breadcrumb */}

@@ -194,7 +194,7 @@ export default function EcosystemHub({ ecosystemId }) {
       {/* SEO metadata handled by generateMetadata in app/ecosystem/[ecosystemId]/page.tsx */}
 
       {/* Hero */}
-      <div style={{ background: eco.heroBg, padding: "52px 20px 48px", position: "relative", overflow: "hidden" }}>
+      <div style={{ background: eco.heroBg, padding: "32px 20px 28px", position: "relative", overflow: "hidden" }}>
         <div style={{
           position: "absolute", inset: 0,
           background: "radial-gradient(ellipse 60% 80% at 80% 0%, rgba(255,255,255,.06) 0%, transparent 60%)",
@@ -251,7 +251,7 @@ export default function EcosystemHub({ ecosystemId }) {
         </div>
       </div>
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "32px 20px 64px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 20px 44px" }}>
 
         {/* Tool groups */}
         {eco.groups.map(group => {

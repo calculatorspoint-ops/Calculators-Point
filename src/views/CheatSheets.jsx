@@ -3,7 +3,7 @@ import { ALL_CALCULATORS, CATEGORIES } from '@/data/calculatorConfigs';
 
 export default function CheatSheets() {
   const featured = ALL_CALCULATORS.filter((calc) => calc.formula).slice(0, 80);
-  return <section style={{ maxWidth: 1080, margin: '48px auto', padding: 24 }}>
+  return <section style={{ maxWidth: 1080, margin: '30px auto', padding: 20 }}>
     <p style={{ color: 'var(--brand)', fontWeight: 800 }}>FORMULAS AND REFERENCES</p><h1>Calculator Cheat Sheets</h1>
     <p>Review common formulas and open the calculator for a complete, interactive breakdown.</p>
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 16, marginTop: 28 }}>

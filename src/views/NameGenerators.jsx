@@ -12,7 +12,7 @@ const generators = [
 ];
 
 export default function NameGenerators() {
-  return <section style={{ maxWidth: 1080, margin: '48px auto', padding: 24 }}>
+  return <section style={{ maxWidth: 1080, margin: '30px auto', padding: 20 }}>
     <p style={{ color: 'var(--brand)', fontWeight: 800 }}>FREE CREATIVE TOOLS</p><h1>Name Generators</h1>
     <p>Explore name ideas for people, businesses, brands, apps, domains, and social channels.</p>
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 18, marginTop: 28 }}>

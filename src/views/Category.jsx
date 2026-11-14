@@ -300,7 +300,7 @@ export default function Category() {
       {/* SEO metadata handled by generateMetadata in app/category/[catId]/page.tsx */}
 
       {/* Hero */}
-      <div style={{ background: content.heroBg || `linear-gradient(135deg, #0f172a, ${cat.color})`, padding: "48px 20px 44px", position: "relative", overflow: "hidden" }}>
+      <div style={{ background: content.heroBg || `linear-gradient(135deg, #0f172a, ${cat.color})`, padding: "32px 20px 28px", position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 50% 70% at 90% 0%, rgba(255,255,255,.05) 0%, transparent 60%)" }} />
         <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative", zIndex: 1 }}>
           <nav style={{ display: "flex", gap: 6, alignItems: "center", fontSize: 12, color: "rgba(255,255,255,.5)", marginBottom: 16 }}>
@@ -373,7 +373,7 @@ export default function Category() {
       {content.bodyIntro && (
         <div style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}>
           <article
-            style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 20px 24px" }}
+            style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 20px 16px" }}
             aria-label={`About ${cat.name} calculators`}
           >
             <h2 style={{
@@ -401,7 +401,7 @@ export default function Category() {
         </div>
       )}
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 20px 64px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "20px 20px 44px" }}>
         <div className="category-page-layout">
           {/* Main content */}
           <div>
